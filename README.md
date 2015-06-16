@@ -9,8 +9,8 @@ It can be used to deploy web application without dependency on any particular we
 
   * [Description of webconfig-spec - development version](dev/README.md)
   * Current implementations:
-    * [httpd-cfg](httpd-cfg.md) - Implementation generating Apache httpd configuration files.
-    * [haproxy-cfg](haproxy-cfg.md) - Implementation generating HAProxy configuration files.
+    * [httpd-cfg](https://github.com/micro-webapps/httpd-cfg) - Implementation generating Apache httpd configuration files.
+    * [haproxy-cfg](https://github.com/micro-webapps/haproxy-cfg) - Implementation generating HAProxy configuration files.
   * The example usages of webconfig-spec:
     * [Configuring the web applications in UNIX distribution-like environment](example-distro.md)
     * [Configuring the web applications in Kubernetes/Openshift environment](example-kubernetes-openshift.md)
