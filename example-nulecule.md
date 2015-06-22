@@ -1,18 +1,18 @@
 # Configuring the web applications distributed as Nulecules (atomicapp)
 
-This document describes the benefits of using webconfig-spec for the web applications distributed as Nulecules (atomicapp).
+This document describes the benefits of using webconf-spec for the web applications distributed as Nulecules (atomicapp).
 
 *This document is not final yet and can change without any notice. For now, it is mainly intended to be a working place where the ideas are put.*
 
-## How is webconfig-spec useful for the Nulecule?
+## How is webconf-spec useful for the Nulecule?
 
-Using the webconfig-spec, the developer of the Nulecule file can create self-contained web application which includes also the server-independent configuration for the webserver or reverse proxy used in the multi-container environment.
+Using the webconf-spec, the developer of the Nulecule file can create self-contained web application which includes also the server-independent configuration for the webserver or reverse proxy used in the multi-container environment.
 
 The key benefits are similar to one described on the [Configuring the web applications in Kubernetes/Openshift environment](example-kubernetes-openshift.md) page, so please refer to it.
 
-## Example of webconfig-spec for Nulecule
+## Example of webconf-spec for Nulecule
 
-The web applications configuration files are part of the Kubernetes service file shipped with the application itself in the `metadata` section. The webconfig-spec is parametrized using the Nulecule:
+The web applications configuration files are part of the Kubernetes service file shipped with the application itself in the `metadata` section. The webconf-spec is parametrized using the Nulecule:
 
     {
         "kind": "Service",
