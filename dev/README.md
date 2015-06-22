@@ -23,11 +23,11 @@ Table of Contents
     * [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server)
 
 # What is webconf-spec?
-Webconfig-spec is specification of webserver configuration for web applications configuration. The goal of webconf-spec is to provide a way how to configure widely used webservers like Apache httpd, Nginx or HAProxy using the single configuration file.
+Webconfig-spec is specification of webserver configuration for web applications configuration. The goal of webconf-spec is to provide a way how to configure widely used webservers or proxies like Apache httpd, Nginx or HAProxy using the single configuration file.
 
 # What is it useful for?
 
-It can be used to deploy web application without dependency on any particular webserver implementation. In this case, the web application developer writes single configuration file in JSON, which is translated to the particular webserver's configuration on the user's machine when he deploys the application. This is achieved by the webconf-spec implementation shipped together with the webserver.
+It can be used to create web applications without dependency on any particular webserver implementation. In this case, the web application developer writes single configuration file in JSON, which is translated to the particular webserver's configuration on the user's machine when he deploys the application. This is achieved by the webconf-spec implementation shipped together with the webserver.
 
 # Are there any implementation already?
 
@@ -44,11 +44,11 @@ All the implementations are currently used in the micro-webapps project Docker i
 
 # Description of webconf-spec specification
 
-It is important to note that the webconf-spec is not trying to be feature full specification. Usually, the web applications do not use all features of the webservers and therefore we have tried to keep things simple and support only features which are widely used by web applications to configure the webserver and which are shared between all the widely used webservers.
+It is important to note that the webconf-spec is not trying to be full featured webserver configuration specification. Usually, the web applications do not use all features of the webservers and therefore we have tried to keep things simple and support only features which are widely used by web applications to configure the webserver and which are shared between all widely used webservers.
 
 ## General options
 
-This section describes the general webconf-spec JSON fields. They are usually used only in the root JSON element if not allowed otherwise later in specific options described later in this document.
+This section describes the general webconf-spec JSON fields. They are used only in the root JSON object, except of the `index` option, which can be used in the in other JSON objects as described later in this specification. 
 
 | Key | Type | Meaning |
 |-----|------|---------|
@@ -64,7 +64,7 @@ If the virtualhost option is set to an empty string or is not defined, the webco
 
 ## Redirect option
 
-This section describe redirect option used to redirect from the one URL or path to another URL. The Redirect option can be used only in the root section of the webconf-spec.
+This section describe redirect option used to redirect from one URL or path to another URL. The Redirect option can be used only in the root object of the webconf-spec.
 
 The format of the redirect option is following:
 
@@ -77,7 +77,7 @@ The special options which can be used in redirect option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| from | String | The URL or path from which the redirection happens |
+| from | String | The URL or path from which the redirection happens. |
 | to | String | The URL to which the client is redirected. |
 
 ## Proxy options
@@ -90,13 +90,13 @@ This section describes the proxy related webconf-spec JSON fields. They can be u
 | proxy_alias | String | The alias location of the web application on the frontend server. If the web application should be accessible on "http://domain.tld/blog", then the value of this option should be "/blog". |
 | proxy_backend_alias | String | The alias location of the web application on the backend server. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "/wordpress". |
 | proxy_hostname | String | The hostname or IP address of the backend server running the web application. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "internal.domain.tld". |
-| proxy_hostname | String | The hostname or IP address of the backend server running the web application. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "internal.domain.tld". |
+| proxy_port | String | The port of the backend server running the web application. |
 
 If the proxy_protocol option is set to an emptry string or is not defined, but all the other options needed to proxy the requests are specified, the webconf-spec implementation should use "http://" as default. If the proxy_alias or the proxy_backend_alias options are set to an emptry string or are not defined, the webconf-spec implementation should use "/" string as default value.
 
 ## Match option
 
-This section describes the match options. These options are used to match the files served by the webserver based on their names and configure the way webserver handles them. All the Proxy options can be used in the Match options.
+This section describes the match option. This option is used to match files served by the webserver based on their names and configure the way webserver handle them. All the Proxy options can be used in the Match option.
 
 The format of match option is following:
 
@@ -191,7 +191,7 @@ The format of locations option is following:
 
 ## Merging the webconf-spec formatted files
 
-Although the webconf-spec describes the configuration of the single web application, all the implementations must expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same options which are in contrast to each other, it is up to implementation how to do the merge. It can pick up the option randomly or treat is as an error.
+Although the webconf-spec describes the configuration of the single web application, all the implementations must expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same options which are in contrast to each other, it is up to implementation how to do the merge. It can pick up the option randomly or treat it as an error.
 
 # Examples of webconf-spec specification
 
