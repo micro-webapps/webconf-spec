@@ -33,8 +33,8 @@ It can be used to create web applications without dependency on any particular w
 
 Yes, we have following implementations generating the native webserver's configuration from the webconf-spec files:
 
-- [httpd-cfg](https://github.com/hanzz/micro-webapps/blob/master/docker-images/httpd-frontend/httpd-cfg) - Reads the .json webconf-spec files from input directory and generates the Apache httpd configuration in the output directory.
-- [haproxy-cfg](https://github.com/hanzz/micro-webapps/blob/master/docker-images/haproxy-frontend/haproxy-cfg) - Reads the .json webconf-spec files from input directory and generates the HAProxy configuration in the output directory.
+- [httpd-cfg](https://github.com/micro-webapps/micro-webapps/blob/master/docker-images/httpd-frontend/httpd-cfg) - Reads the .json webconf-spec files from input directory and generates the Apache httpd configuration in the output directory.
+- [haproxy-cfg](https://github.com/micro-webapps/micro-webapps/blob/master/docker-images/haproxy-frontend/haproxy-cfg) - Reads the .json webconf-spec files from input directory and generates the HAProxy configuration in the output directory.
 
 
 All the implementations are currently used in the micro-webapps project Docker images, which are able to load the webconf-spec configuration stored in the Kubernetes/Openshift api-server:
@@ -157,6 +157,8 @@ The special options which can be used in Directories option are:
 | Alias | String | Sets the alias for the directory. If the directory should be accessible as "http://domain.tld/blog", then the value of this option should be "/blog".|
 
 
+If Match option appears in the Directories option, all the files matching the regular expression in the main directory or its sub-directories should be configured by this Match option.
+
 Using Directories option, it is for example possible to disable access to particular files in particular directory:
 
     {
@@ -197,6 +199,8 @@ The format of locations option is following:
             "option2": "value"
         }
     }
+
+If Match option appears in the Locations option, all the files matching the regular expression in the main location or its sub-locations should be configured by this Match option.
 
 ## Merging the webconf-spec formatted files
 
