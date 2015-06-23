@@ -204,7 +204,7 @@ If Match option appears in the Locations option, all the files matching the regu
 
 ## Merging the webconf-spec formatted files
 
-Although the webconf-spec describes the configuration of the single web application, all the implementations must expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same options which are in contrast to each other, it is up to implementation how to do the merge. It can pick up the option randomly or treat it as an error.
+Although the webconf-spec describes the configuration of the single web application, all the implementations must expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same options which are in contrast to each other, the implementation should treat it as an error.
 
 # Examples of webconf-spec specification
 
