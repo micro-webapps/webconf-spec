@@ -33,8 +33,8 @@ It can be used to create web applications without dependency on any particular w
 
 Yes, we have following implementations generating the native webserver's configuration from the webconf-spec files:
 
-- [httpd-cfg](https://github.com/micro-webapps/micro-webapps/blob/master/docker-images/httpd-frontend/httpd-cfg) - Reads the .json webconf-spec files from input directory and generates the Apache httpd configuration in the output directory.
-- [haproxy-cfg](https://github.com/micro-webapps/micro-webapps/blob/master/docker-images/haproxy-frontend/haproxy-cfg) - Reads the .json webconf-spec files from input directory and generates the HAProxy configuration in the output directory.
+- [httpd-cfg](https://github.com/micro-webapps/httpd-cfg) - Reads the .json webconf-spec files from input directory and generates the Apache httpd configuration in the output directory.
+- [haproxy-cfg](https://github.com/micro-webapps/haproxy-cfg) - Reads the .json webconf-spec files from input directory and generates the HAProxy configuration in the output directory.
 
 
 All the implementations are currently used in the micro-webapps project Docker images, which are able to load the webconf-spec configuration stored in the Kubernetes/Openshift api-server:
