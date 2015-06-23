@@ -62,22 +62,27 @@ This section describes the general webconf-spec JSON fields. They are used only 
 
 If the virtualhost option is set to an empty string or is not defined, the webconf-spec implementation should treat all the options as global (It means not bound to any virtualhost). If any of the other options is set to an empty string or is not defined, the webconf-spec implementation should ignore the option completely.
 
-## Redirect option
+## Redirects option
 
-This section describe redirect option used to redirect from one URL or path to another URL. The Redirect option can be used only in the root object of the webconf-spec.
+This section describes redirects option used to redirect from one URL or path to another URL. The Redirect option can be used only in the root object of the webconf-spec.
 
-The format of the redirect option is following:
+The format of directories option is following:
 
-    "redirect": {
-        "option1": "value",
-        "option2": "value"
+    "redirects": {
+        "/from/url": {
+            "option1": "value",
+            "option2": "value"
+        },
+        "/from/another/url": {
+            "option1": "value",
+            "option2": "value"
+        }
     }
 
 The special options which can be used in redirect option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| from | String | The URL or path from which the redirection happens. |
 | to | String | The URL to which the client is redirected. |
 
 ## Proxy options
@@ -98,35 +103,39 @@ If the proxy_protocol option is set to an emptry string or is not defined, but a
 
 This section describes the match option. This option is used to match files served by the webserver based on their names and configure the way webserver handle them. All the Proxy options can be used in the Match option.
 
-The format of match option is following:
-
     "match": {
-        "option1": "value",
-        "option2": "value"
+        "\\.regex_to_match_the_files$": {
+            "option1": "value",
+            "option2": "value"
+        },
+        "\\.php$": {
+            "option1": "value",
+            "option2": "value"
+        }
     }
 
 The special options which can be used in Match option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| regex | String | Regular expression used to match the files. |
 | allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. Any other value denies anyone to access the file. |
 
 
 This allows for example proxying the PHP files to php-fpm server:
 
     "match": {
-        "regex": "\\.php$",
-        "proxy_protocol": "fcgi://",
-        "proxy_backend_alias": "/wordpress/$1",
-        "proxy_hostname": "localhost",
-        "proxy_port:", "9000",
-        "allow": "all"
+        "\\.php$": {
+            "proxy_protocol": "fcgi://",
+            "proxy_backend_alias": "/wordpress/$1",
+            "proxy_hostname": "localhost",
+            "proxy_port:", "9000",
+            "allow": "all"
+        }
     }
 
 ## Directories option
 
-This section describes the directories related webconf-spec JSON options. Directories are used to configure the real directories on the webserver. All the Proxy options and Match option can be used in the Directories options as well as the "index" option.
+This section describes the directories related webconf-spec JSON options. Directories are used to configure the real directories on the webserver. Per-directory configuration set by this option is applied to all sub-directories of the main directory. All the Proxy options and Match option can be used in the Directories options as well as the "index" option.
 
 The format of directories option is following:
 
@@ -174,7 +183,7 @@ Or it is for example possible to serve static local directory as "http://domain:
 
 ## Locations option
 
-This section describes the locations options. Locations are used to configure the non-real paths on the webserver as they are used in the HTTP requests. All the Proxy options and Match option can be used in the Locations options as well as the "index" option.
+This section describes the locations options. Locations are used to configure the non-real paths on the webserver as they are used in the HTTP requests. Per-location configuration set by this option is applied to all sub-locations of the main location. All the Proxy options and Match option can be used in the Locations options as well as the "index" option.
 
 The format of locations option is following:
 
@@ -200,6 +209,7 @@ This sections contains few commented examples of the webconf-spec configuration 
 ## Serving the static directory on http://domain.tld/static
 
     {
+        "version": "dev",
         "virtualhost": "domain.tld",
         "directories": {
             "/var/www/my-static-dir": {
@@ -211,6 +221,7 @@ This sections contains few commented examples of the webconf-spec configuration 
 ## Serving the static directory with SSL support
 
     {
+        "version": "dev",
         "virtualhost": "domain.tld",
         "certificate": "/etc/pki/tls/certs/domain.tld.crt",
         "certificate_key": "/etc/pki/tls/private/domain.tld.key",
@@ -224,12 +235,14 @@ This sections contains few commented examples of the webconf-spec configuration 
 ## Serving the static directory with SSL support, redirecting HTTP to HTTPS
 
     {
+        "version": "dev",
         "virtualhost": "domain.tld",
         "certificate": "/etc/pki/tls/certs/domain.tld.crt",
         "certificate_key": "/etc/pki/tls/private/domain.tld.key",
-        "redirect": {
-            "from":"/",
-            "to": "https://domain.tld/"
+        "redirects": {
+            "/": {
+                "to": "https://domain.tld/"
+            }
         },
         "directories": {
             "/var/www/my-static-dir": {
@@ -241,6 +254,7 @@ This sections contains few commented examples of the webconf-spec configuration 
 ## The default Wordpress configuration as seen in Fedora
 
     {
+        "version": "dev",
         "directories": {
             "/usr/share/wordpress": {
                 "alias": "/wordpress",
@@ -248,8 +262,9 @@ This sections contains few commented examples of the webconf-spec configuration 
             },
             "/usr/share/wordpress/wp-content/plugins/akismet": {
                 "match": {
-                    "regex": "\\.(php|txt)$",
-                    "allow": "none"
+                    "\\.(php|txt)$": {
+                        "allow": "none"
+                    }
                 }
             }
         }
@@ -278,7 +293,7 @@ If we would like to specify all the options although it duplicates the default v
 
 ## Proxying the PHP files in http://domain.tld/blog to php-fpm server
 
-This configuration defines index.php directory index for /usr/share/wordpress directory. Sets the /blog alias for that directory and configures the webserver to proxy all the PHP files from the /blog location to PHP-FPM server running on fcgi://localhost:9000.
+This configuration defines index.php directory index for /usr/share/wordpress directory. Sets the /blog alias for that directory and configures the webserver to proxy all the PHP files from the /blog location (and its sub-locations) to PHP-FPM server running on fcgi://localhost:9000.
 
     {
         "virtualhost": "domain.tld",
@@ -291,12 +306,13 @@ This configuration defines index.php directory index for /usr/share/wordpress di
         "locations": {
             "/blog": {
                 "match": {
-                    "regex": "\\.php$",
-                    "proxy_protocol": "fcgi://",
-                    "proxy_hostname": "localhost",
-                    "proxy_port": "9000",
-                    "proxy_backend_alias": "/usr/share/wordpress/$1",
-                    "allow": "all"
+                    "\\.php$": {
+                        "proxy_protocol": "fcgi://",
+                        "proxy_hostname": "localhost",
+                        "proxy_port": "9000",
+                        "proxy_backend_alias": "/usr/share/wordpress/$1",
+                        "allow": "all"
+                    }
                 }
             }
         }
