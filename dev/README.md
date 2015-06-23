@@ -55,7 +55,7 @@ This section describes the general webconf-spec JSON fields. They are used only 
 | certificate | String | The full path to file containing the certificate to be used for the virtualhost or server. When using this option, the SSL for this virtualhost or server will be enabled. |
 | certificate_key | String | The full path to file containing the certificate key to be used for the virtualhost or server. When using this option, the SSL for this virtualhost or server will be enabled. |
 | document_root | String | The full path to directory acting as root directory for the virtualhost or server. |
-| index | String | Name (or white-space seperated list of names) of the files which should be server by default when found in directory ("index.html" for example). |
+| index | String | Name (or white-space seperated list of names) of the files which should be server by default when found in directory ("index.html" for example). It can be also set to value `disabled` to disable to the index file completely. The value of `autoindex` will enable automatic generation of indexes similar to the Unix ls command or the Win32 dir shell command. |
 | version | String | The version of the webconf-spec used in this configuration file. For the development version of webconf-spec, the value of this option should be set to "dev". |
 | virtualhost | String | Virtual host on which the web application should run. |
 
