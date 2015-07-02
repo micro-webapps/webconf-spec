@@ -11,6 +11,7 @@ It can be used to create web applications without dependency on any particular w
   * Current implementations:
     * [httpd-cfg](https://github.com/micro-webapps/httpd-cfg) - Implementation generating Apache httpd configuration files.
     * [haproxy-cfg](https://github.com/micro-webapps/haproxy-cfg) - Implementation generating HAProxy configuration files.
+    * [nginx-cfg](https://github.com/micro-webapps/nginx-cfg) - Implementation generating nginx configuration files.
   * The example usages of webconf-spec:
     * [Configuring the web applications in UNIX distribution-like environment](example-distro.md)
     * [Configuring the web applications in Kubernetes/Openshift environment](example-kubernetes-openshift.md)

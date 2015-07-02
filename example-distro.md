@@ -17,4 +17,4 @@ The web applications configuration files are installed into following tree in th
 
 Once the web application is installed, its webconf-spec configuration file is added into `/etc/webapps.d/available/` directory. When the admin decides to enable to web application, he creates the symbolic link to its configuration file in the `/etc/webapps.d/enabled/` directory.
 
-He can then restart the webserver. The part of restart process (basically the part of the initscript or systemd service file) is the execution of the webconf-spec implementation (like httpd-cfg or haproxy-cfg), which generates the native webserver's configuration files from the webconf-spec configuration files located in `/etc/webapps.d/enabled/` directory.
+He can then restart the webserver. The part of restart process (basically the part of the initscript or systemd service file) is the execution of the webconf-spec implementation (like httpd-cfg, haproxy-cfg or nginx-cfg), which generates the native webserver's configuration files from the webconf-spec configuration files located in `/etc/webapps.d/enabled/` directory.
