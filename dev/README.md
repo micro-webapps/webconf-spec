@@ -59,9 +59,9 @@ If the virtualhost option is set to an empty string or is not defined, the webco
 
 ## Redirects option
 
-This section describes redirects option used to redirect from one URL or path to another URL. The Redirect option can be used only in the root object of the webconf-spec.
+This section describes redirects option used to redirect from one URL or path to another URL. The Redirects option can be used only in the root object of the webconf-spec.
 
-The format of directories option is following:
+The format of redirects option is following:
 
     "redirects": {
         "/from/url": {
@@ -74,7 +74,7 @@ The format of directories option is following:
         }
     }
 
-The special options which can be used in redirect option are:
+The special options which can be used in redirects option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
@@ -92,11 +92,11 @@ This section describes the proxy related webconf-spec JSON fields. They can be u
 | proxy_hostname | String | The hostname or IP address of the backend server running the web application. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "internal.domain.tld". |
 | proxy_port | String | The port of the backend server running the web application. |
 
-If the proxy_protocol option is set to an emptry string or is not defined, but all the other options needed to proxy the requests are specified, the webconf-spec implementation should use "http://" as default. If the proxy_alias or the proxy_backend_alias options are set to an emptry string or are not defined, the webconf-spec implementation should use "/" string as default value.
+If the proxy_protocol option is set to an empty string or is not defined, but all the other options needed to proxy the requests are specified, the webconf-spec implementation should use "http://" as default. If the proxy_alias or the proxy_backend_alias options are set to an emptry string or are not defined, the webconf-spec implementation should use "/" string as default value.
 
 ## Match option
 
-This section describes the match option. This option is used to match files served by the webserver based on their names and configure the way webserver handle them. All the Proxy options can be used in the Match option.
+This section describes the match option. This option is used to match files served by the webserver based on their names and configure the way webserver handles them. All the Proxy options can be used in the Match option.
 
     "match": {
         "\\.regex_to_match_the_files$": {
@@ -113,7 +113,7 @@ The special options which can be used in Match option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. Any other value denies anyone to access the file. |
+| allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. The "deny" value, as well as any other undefined value, denies anyone to access the file. |
 
 
 This allows for example proxying the PHP files to php-fpm server:
@@ -163,11 +163,14 @@ Using Directories option, it is for example possible to disable access to partic
                     "regex": "\\.(php|txt)$",
                     "allow": "none"
                 }
+            },
+            "/usr/share/wordpress/": {
+                "alias": "/blog"
             }
         }
     }
 
-Or it is for example possible to serve static local directory as "http://domain:.tld/static":
+Or it is for example possible to serve static local directory as "http://domain.tld/static":
 
     {
         "virtualhost": "domain.tld",
@@ -195,7 +198,75 @@ The format of locations option is following:
         }
     }
 
+The special options which can be used in Directories option are:
+
+| Key | Type | Meaning |
+|-----|------|---------|
+| Alias | String | Sets the real directory as an alias for the location. If the content of "/var/www/html" directory should be accessible as "http://domain.tld/blog", then the value of this option should be "/var/www/html".|
+
 If Match option appears in the Locations option, all the files matching the regular expression in the main location or its sub-locations should be configured by this Match option.
+
+Using Locations option, it is for example possible to disable access to particular files in particular directory:
+
+    {
+        "locations": {
+            "/blog/wp-content/plugins/akismet": {
+                "match": {
+                    "regex": "\\.(php|txt)$",
+                    "allow": "none"
+                }
+            },
+            "/blog": {
+                "alias": "/usr/share/wordpress"
+            }
+        }
+    }
+
+Or it is for example possible to serve static local directory as "http://domain.tld/static":
+
+    {
+        "virtualhost": "domain.tld",
+        "locations": {
+            "/static": {
+                "alias": "/var/www/my-static-dir"
+            }
+        }
+    }
+
+## Directories versus Locations
+
+The Directories can be converted to locations using the "alias" option and vice-versa. When writing configuration file in webconf-spec format, the directories and locations must remain convertable to each other.
+
+It is therefore wrong to write following webconf-spec file:
+
+    {
+        "directories": {
+            "/usr/share/wordpress/wp-content/plugins/akismet": {
+                "match": {
+                    "regex": "\\.(php|txt)$",
+                    "allow": "none"
+                }
+            }
+        }
+    }
+
+The reason why this is wrong is that the implementation has no idea on which URL the directory "/usr/share/wordpress/wp-content/plugins/akismet" is being served. To fix this, we simply have to set an alias to any prefix of the "/usr/share/wordpress/wp-content/plugins/akismet" directory:
+
+    {
+        "directories": {
+            "/usr/share/wordpress/wp-content/plugins/akismet": {
+                "match": {
+                    "regex": "\\.(php|txt)$",
+                    "allow": "none"
+                }
+            },
+            "/usr/share/wordpress/": {
+                "alias": "/blog"
+            }
+        }
+    }
+
+This is now correct, because the implementation can compute the correct URL for the "/usr/share/wordpress/wp-content/plugins/akismet" directory - it would be "/blog/wp-content/plugins/akismet".
 
 ## Merging the webconf-spec formatted files
 
