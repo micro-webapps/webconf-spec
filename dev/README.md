@@ -22,6 +22,16 @@ Table of Contents
     * [Proxying the webapp.domain.tld to another HTTP server](#proxying-the-webappdomaintld-to-another-http-server)
     * [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server)
 
+# Development version
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](http://www.ietf.org/rfc/rfc2119.txt).
+
+The Webconf-spec specification is licensed under [GNU Free Documentation License Version 1.3, 3 November 2008](https://www.gnu.org/copyleft/fdl.html).
+
+## Versioning
+
+Within this specification we follow [the semantic versioning pattern](http://semver.org/spec/v2.0.0.html).
+
 # What is webconf-spec?
 Webconfig-spec is specification of webserver configuration for web applications configuration. The goal of webconf-spec is to provide a way how to configure widely used webservers or proxies like Apache httpd, Nginx or HAProxy using the single configuration file.
 
@@ -37,6 +47,12 @@ Yes, we have following implementations generating the native webserver's configu
 - [haproxy-cfg](https://github.com/micro-webapps/haproxy-cfg) - Reads the .json webconf-spec files from input directory and generates the HAProxy configuration in the output directory.
 - [nginx-cfg](https://github.com/micro-webapps/nginx-cfg) - Reads the .json webconf-spec files from input directory and generates the nginx configuration in the output directory.
 
+# Format
+
+The files describing a webserver configuration in accordance with the Webconf-spec specification are represented using [JSON](http://json.org/).
+
+All field names in the specification are **case sensitive**.
+
 # Description of webconf-spec specification
 
 It is important to note that the webconf-spec is not trying to be full featured webserver configuration specification. Usually, the web applications do not use all features of the webservers and therefore we have tried to keep things simple and support only features which are widely used by web applications to configure the webserver and which are shared between all widely used webservers.
@@ -47,15 +63,15 @@ This section describes the general webconf-spec JSON fields. They are used only 
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| certificate | String | The full path to file containing the certificate to be used for the virtualhost or server. When using this option, the SSL for this virtualhost or server will be enabled. |
-| certificate_key | String | The full path to file containing the certificate key to be used for the virtualhost or server. When using this option, the SSL for this virtualhost or server will be enabled. |
+| certificate | String | The full path to file containing the certificate to be used for the virtualhost or server. When using this option, the SSL for this virtualhost or server MUST be enabled by the implementation. |
+| certificate_key | String | The full path to file containing the certificate key to be used for the virtualhost or server. When using this option, the SSL for this virtualhost or server MUST be enabled by the implementation. |
 | document_root | String | The full path to directory acting as root directory for the virtualhost or server. |
-| index | String | Name (or white-space seperated list of names) of the files which should be server by default when found in directory ("index.html" for example). It can be also set to value `disabled` to disable to the index file completely. The value of `autoindex` will enable automatic generation of indexes similar to the Unix ls command or the Win32 dir shell command. |
-| version | String | The version of the webconf-spec used in this configuration file. For the development version of webconf-spec, the value of this option should be set to "dev". |
+| index | String | Name (or white-space seperated list of names) of the files which SHOULD be served by default when found in directory ("index.html" for example). It can be also set to value `disabled` to disable to the index file completely. The value of `autoindex` will enable automatic generation of indexes similar to the Unix ls command or the Win32 dir shell command. |
+| version | String | The version of the webconf-spec used in this configuration file. For the development version of webconf-spec, the value of this option should be set to "dev". This field MUST be always included. |
 | virtualhost | String | Virtual host on which the web application should run. |
 
 
-If the virtualhost option is set to an empty string or is not defined, the webconf-spec implementation should treat all the options as global (It means not bound to any virtualhost). If any of the other options is set to an empty string or is not defined, the webconf-spec implementation should ignore the option completely.
+If the virtualhost option is set to an empty string or is not defined, the webconf-spec implementation SHOULD treat all the options as global (It means not bound to any virtualhost). If any of the other options is set to an empty string or is not defined, the webconf-spec implementation MUST ignore the option completely.
 
 ## Redirects option
 
@@ -80,6 +96,8 @@ The special options which can be used in redirects option are:
 |-----|------|---------|
 | to | String | The URL to which the client is redirected. |
 
+The implementation MUST configure the webserver to redirect from the `from` URL to `to` URL.
+
 ## Proxy options
 
 This section describes the proxy related webconf-spec JSON fields. They can be used in the root section of webconf-spec or in "directories" or "locations" section as described later in this document.
@@ -88,11 +106,11 @@ This section describes the proxy related webconf-spec JSON fields. They can be u
 |-----|------|---------|
 | proxy_protocol | String | The protocol used to connect the backend server. For example "http://", "fcgi://" or "ajp://". |
 | proxy_alias | String | The alias location of the web application on the frontend server. If the web application should be accessible on "http://domain.tld/blog", then the value of this option should be "/blog". |
-| proxy_backend_alias | String | The alias location of the web application on the backend server. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "/wordpress". |
+| proxy_backend_alias | String | The alias location of the web application on the backend server. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "/wordpress". When used in Match option, the implementation MUST configure the webserver to allow replacement of `$1` in the proxy_backend_alias value with the name of file matching the Match options. When the Match option is used in the Locations option (or Directories option), the file name used as replacement for `$` MUST also include the path to the file starting at the location (or directory) configured in this particular Locations option (or Directories option). See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) as an example of this configuration. |
 | proxy_hostname | String | The hostname or IP address of the backend server running the web application. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "internal.domain.tld". |
 | proxy_port | String | The port of the backend server running the web application. |
 
-If the proxy_protocol option is set to an empty string or is not defined, but all the other options needed to proxy the requests are specified, the webconf-spec implementation should use "http://" as default. If the proxy_alias or the proxy_backend_alias options are set to an emptry string or are not defined, the webconf-spec implementation should use "/" string as default value.
+If the proxy_protocol option is set to an empty string or is not defined, but all the other options needed to proxy the requests are specified, the webconf-spec implementation MUST use "http://" as default. If the proxy_alias or the proxy_backend_alias options are set to an emptry string or are not defined, the webconf-spec implementation MUST use "/" string as default value.
 
 ## Match option
 
@@ -130,7 +148,7 @@ This allows for example proxying the PHP files to php-fpm server:
 
 ## Directories option
 
-This section describes the directories related webconf-spec JSON options. Directories are used to configure the real directories on the webserver. Per-directory configuration set by this option is applied to all sub-directories of the main directory. All the Proxy options and Match option can be used in the Directories options as well as the "index" option.
+This section describes the directories related webconf-spec JSON options. Directories are used to configure the real directories on the webserver. Per-directory configuration set by this option MUST be applied to all sub-directories of the main directory. All the Proxy options and Match option can be used in the Directories options as well as the "index" option.
 
 The format of directories option is following:
 
@@ -152,7 +170,7 @@ The special options which can be used in Directories option are:
 | Alias | String | Sets the alias for the directory. If the directory should be accessible as "http://domain.tld/blog", then the value of this option should be "/blog".|
 
 
-If Match option appears in the Directories option, all the files matching the regular expression in the main directory or its sub-directories should be configured by this Match option.
+If Match option appears in the Directories option, all files matching the regular expression in the main directory or its sub-directories MUST be configured by this Match option.
 
 Using Directories option, it is for example possible to disable access to particular files in particular directory:
 
@@ -183,7 +201,7 @@ Or it is for example possible to serve static local directory as "http://domain.
 
 ## Locations option
 
-This section describes the locations options. Locations are used to configure the non-real paths on the webserver as they are used in the HTTP requests. Per-location configuration set by this option is applied to all sub-locations of the main location. All the Proxy options and Match option can be used in the Locations options as well as the "index" option.
+This section describes the locations options. Locations are used to configure the non-real paths on the webserver as they are used in the HTTP requests. Per-location configuration set by this option MUST be applied to all sub-locations of the main location. All the Proxy options and Match option can be used in the Locations options as well as the "index" option.
 
 The format of locations option is following:
 
@@ -204,7 +222,7 @@ The special options which can be used in Directories option are:
 |-----|------|---------|
 | Alias | String | Sets the real directory as an alias for the location. If the content of "/var/www/html" directory should be accessible as "http://domain.tld/blog", then the value of this option should be "/var/www/html".|
 
-If Match option appears in the Locations option, all the files matching the regular expression in the main location or its sub-locations should be configured by this Match option.
+If Match option appears in the Locations option, all the files matching the regular expression in the main location or its sub-locations MUST be configured by this Match option.
 
 Using Locations option, it is for example possible to disable access to particular files in particular directory:
 
@@ -235,7 +253,7 @@ Or it is for example possible to serve static local directory as "http://domain.
 
 ## Directories versus Locations
 
-The Directories can be converted to locations using the "alias" option and vice-versa. When writing configuration file in webconf-spec format, the directories and locations must remain convertable to each other.
+The Directories can be converted to locations using the "alias" option and vice-versa. When writing configuration file in webconf-spec format, the directories and locations MUST remain convertable to each other.
 
 It is therefore wrong to write following webconf-spec file:
 
@@ -268,9 +286,11 @@ The reason why this is wrong is that the implementation has no idea on which URL
 
 This is now correct, because the implementation can compute the correct URL for the "/usr/share/wordpress/wp-content/plugins/akismet" directory - it would be "/blog/wp-content/plugins/akismet".
 
+This allows simpler writing of webconf-spec configuration, because the author of the configuration can decide if he wants to describe the configuration based on the locations or directories.
+
 ## Merging the webconf-spec formatted files
 
-Although the webconf-spec describes the configuration of the single web application, all the implementations must expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same options which are in contrast to each other, the implementation should treat it as an error.
+Although the webconf-spec describes the configuration of the single web application, all the implementations SHOULD expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same options which are in contrast to each other, the implementation MUST treat it as an error.
 
 # Examples of webconf-spec specification
 
@@ -347,7 +367,7 @@ We do not specify the proxy_alias, proxy_backend_alias or proxy_protocol here, b
     {
         "virtualhost": "webapp.domain.tld",
         "proxy_hostname": "localhost",
-        "proxy_port": "9000",
+        "proxy_port": "8080",
     }
 
 If we would like to specify all the options although it duplicates the default values, the example would look like this:
@@ -356,25 +376,23 @@ If we would like to specify all the options although it duplicates the default v
         "virtualhost": "webapp.domain.tld",
         "proxy_protocol": "http://",
         "proxy_hostname": "localhost",
-        "proxy_port": "9000",
+        "proxy_port": "8080",
         "proxy_alias": "/",
         "proxy_backend_alias: "/"
     }
 
 ## Proxying the PHP files in http://domain.tld/blog to php-fpm server
 
-This configuration defines index.php directory index for /usr/share/wordpress directory. Sets the /blog alias for that directory and configures the webserver to proxy all the PHP files from the /blog location (and its sub-locations) to PHP-FPM server running on fcgi://localhost:9000.
+This configuration sets the "/blog" location to be served from the "/usr/share/wordpress" directory. Then it defines the index.php directory index to be used in this director and its subdirectories.
+
+The Match option is used in the locations section, so all the requests matching the ".php" files in the "/blog" location will be forwarded to the PHP-FPM server running on fcgi://localhost:9000. The value of "proxy_backend_alias" describes that the root directory for the web-application in the backend server is "/usr/share/wordpress". The request for "http://domain.tld/blog/posts/new_post.php" will be therefore forwareded to backend server which will try to serve the "/usr/shared/wordpress/blog/posts/new_post.php" file.
 
     {
         "virtualhost": "domain.tld",
-        "directories": {
-            "/usr/share/wordpress": {
-                "alias": "/blog",
-                "index": "index.php"
-            }
-        },
         "locations": {
             "/blog": {
+                "alias": "/usr/share/wordpress",
+                "index": "index.php",
                 "match": {
                     "\\.php$": {
                         "proxy_protocol": "fcgi://",
