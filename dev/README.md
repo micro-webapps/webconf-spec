@@ -109,6 +109,7 @@ This section describes the proxy related webconf-spec JSON fields. They can be u
 | proxy_backend_alias | String | The alias location of the web application on the backend server. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "/wordpress". When used in Match option, the implementation MUST configure the webserver to allow replacement of `$1` in the proxy_backend_alias value with the name of file matching the Match options. When the Match option is used in the Locations option (or Directories option), the file name used as replacement for `$1` MUST also include the path to the file starting at the location (or directory) configured in this particular Locations option (or Directories option). See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) as an example of this configuration. |
 | proxy_hostname | String | The hostname or IP address of the backend server running the web application. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "internal.domain.tld". |
 | proxy_port | String | The port of the backend server running the web application. |
+| proxy_uds | String | The full path to UNIX Domain Socket which should be used to connect the backend. When both proxy_hostname/proxy_port and proxy_uds options are specified, the proxy_uds MUST be used prioritely. |
 
 If the proxy_protocol option is set to an empty string or is not defined, but all the other options needed to proxy the requests are specified, the webconf-spec implementation MUST use "http://" as default. If the proxy_alias or the proxy_backend_alias options are set to an emptry string or are not defined, the webconf-spec implementation MUST use "/" string as default value.
 
@@ -131,7 +132,7 @@ The special options which can be used in Match option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. The "deny" value, as well as any other undefined value, denies anyone to access the file. |
+| allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. The "deny" value, as well as any other undefined value, denies anyone to access the file. The default value for all locations or directories is "all".|
 
 
 This allows for example proxying the PHP files to php-fpm server:
