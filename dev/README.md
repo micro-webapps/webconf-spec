@@ -289,6 +289,49 @@ This is now correct, because the implementation can compute the correct URL for 
 
 This allows simpler writing of webconf-spec configuration, because the author of the configuration can decide if he wants to describe the configuration based on the locations or directories.
 
+## Error page option
+
+This option is used to define error page showed to the HTTP client on particular HTTP error.
+
+The format of error_page option is following:
+
+    "error_page": {
+        "404": "/error/404.html",
+        "403": "/error/403.html"
+    }
+
+## Raw config option
+
+This option is used to define the raw config for the particular webserver. This can be used to specify special directives per webserver implementation.
+
+The format of the raw_config option is following:
+
+    "raw_config": {
+        "httpd >= 2.4.0": [
+            "<IfModule mod_fcgid.c>",
+            "   <IfModule mod_setenvif.c>",
+            "       <IfModule mod_headers.c>",
+            "           SetEnvIfNoCase ^Authorization$ \"(.+)\" XAUTHORIZATION=$1",
+            "           RequestHeader set XAuthorization %{XAUTHORIZATION}e env=XAUTHORIZATION",
+            "       </IfModule>",
+            "   </IfModule>",
+            "</IfModule>"
+        ],
+        "nginx >= 1.6.0": [
+            "location ~* ^.+\.(jpg|jpeg|gif|bmp|ico|png|css|js|swf)$ {",
+            "   expires 30d;",
+            "   # Optional: Don't log access to assets",
+            "   access_log off;",
+            "}"
+        ]
+    }
+
+The name of the webserver used in the raw_config option depends on the webconf-spec implementation. Allowed comparison operators are ">", "<", ">=", "<=", "==" and "!=" as known from C language. The version is in [Semantic Versioning 2.0.0](http://semver.org/spec/v2.0.0.html) format.
+
+The raw config option can be used in the Match option, Directories option, Locations option and in the root object of the webconf-spec configuration.
+
+The raw config option SHOULD be used only when there is no other way how to describe particular configuration using other webconf-spec options.
+
 ## Merging the webconf-spec formatted files
 
 Although the webconf-spec describes the configuration of the single web application, all the implementations SHOULD expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same options which are in contrast to each other, the implementation MUST treat it as an error.
