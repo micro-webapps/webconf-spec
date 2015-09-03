@@ -102,16 +102,26 @@ The implementation MUST configure the webserver to redirect from the `from` URL 
 
 This section describes the proxy related webconf-spec JSON fields. They can be used in the root section of webconf-spec or in "directories" or "locations" section as described later in this document.
 
+    "proxy": {
+        "protocol": "http://",
+        "hostname": "localhost",
+        "port": "8080",
+        "alias": "/",
+        "backend_alias: "/"
+    }
+
+The special options which can be used in the Proxy option are:
+    
 | Key | Type | Meaning |
 |-----|------|---------|
-| proxy_protocol | String | The protocol used to connect the backend server. For example "http://", "fcgi://" or "ajp://". |
-| proxy_alias | String | The alias location of the web application on the frontend server. If the web application should be accessible on "http://domain.tld/blog", then the value of this option should be "/blog". |
-| proxy_backend_alias | String | The alias location of the web application on the backend server. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "/wordpress". When used in Match option, the implementation MUST configure the webserver to allow replacement of `$1` in the proxy_backend_alias value with the name of file matching the Match options. When the Match option is used in the Locations option (or Directories option), the file name used as replacement for `$1` MUST also include the path to the file starting at the location (or directory) configured in this particular Locations option (or Directories option). See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) as an example of this configuration. |
-| proxy_hostname | String | The hostname or IP address of the backend server running the web application. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "internal.domain.tld". |
-| proxy_port | String | The port of the backend server running the web application. |
-| proxy_uds | String | The full path to UNIX Domain Socket which should be used to connect the backend. When both proxy_hostname/proxy_port and proxy_uds options are specified, the proxy_uds MUST be used prioritely. |
+| protocol | String | The protocol used to connect the backend server. For example "http://", "fcgi://" or "ajp://". |
+| alias | String | The alias location of the web application on the frontend server. If the web application should be accessible on "http://domain.tld/blog", then the value of this option should be "/blog". |
+| backend_alias | String | The alias location of the web application on the backend server. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "/wordpress". When used in Match option, the implementation MUST configure the webserver to allow replacement of `$1` in the backend_alias value with the name of file matching the Match options. When the Match option is used in the Locations option (or Directories option), the file name used as replacement for `$1` MUST also include the path to the file starting at the location (or directory) configured in this particular Locations option (or Directories option). See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) as an example of this configuration. |
+| hostname | String | The hostname or IP address of the backend server running the web application. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "internal.domain.tld". |
+| port | Integer | The port of the backend server running the web application. |
+| uds | String | The full path to UNIX Domain Socket which should be used to connect the backend. When both hostname/port and uds options are specified, the uds MUST be used prioritely. |
 
-If the proxy_protocol option is set to an empty string or is not defined, but all the other options needed to proxy the requests are specified, the webconf-spec implementation MUST use "http://" as default. If the proxy_alias or the proxy_backend_alias options are set to an emptry string or are not defined, the webconf-spec implementation MUST use "/" string as default value.
+If the protocol option is set to an empty string or is not defined, but all the other options needed to proxy the requests are specified, the webconf-spec implementation MUST use "http://" as default. If the alias or the backend_alias options are set to an emptry string or are not defined, the webconf-spec implementation MUST use "/" string as default value.
 
 ## Match option
 
@@ -139,10 +149,12 @@ This allows for example proxying the PHP files to php-fpm server:
 
     "match": {
         "\\.php$": {
-            "proxy_protocol": "fcgi://",
-            "proxy_backend_alias": "/wordpress/$1",
-            "proxy_hostname": "localhost",
-            "proxy_port:", "9000",
+            "proxy" {
+                "protocol": "fcgi://",
+                "backend_alias": "/wordpress/$1",
+                "hostname": "localhost",
+                "port:", "9000"
+            },
             "allow": "all"
         }
     }
@@ -289,13 +301,13 @@ This is now correct, because the implementation can compute the correct URL for 
 
 This allows simpler writing of webconf-spec configuration, because the author of the configuration can decide if he wants to describe the configuration based on the locations or directories.
 
-## Error page option
+## Error pages option
 
 This option is used to define error page showed to the HTTP client on particular HTTP error.
 
-The format of error_page option is following:
+The format of error_pages option is following:
 
-    "error_page": {
+    "error_pages": {
         "404": "/error/404.html",
         "403": "/error/403.html"
     }
@@ -406,30 +418,34 @@ This sections contains few commented examples of the webconf-spec configuration 
 
 ## Proxying the webapp.domain.tld to another HTTP server
 
-We do not specify the proxy_alias, proxy_backend_alias or proxy_protocol here, because we can use their default values.
+We do not specify the alias, backend_alias or protocol here, because we can use their default values.
 
     {
         "virtualhost": "webapp.domain.tld",
-        "proxy_hostname": "localhost",
-        "proxy_port": "8080",
+        "proxy": {
+            "hostname": "localhost",
+            "port": "8080"
+        }
     }
 
 If we would like to specify all the options although it duplicates the default values, the example would look like this:
 
     {
         "virtualhost": "webapp.domain.tld",
-        "proxy_protocol": "http://",
-        "proxy_hostname": "localhost",
-        "proxy_port": "8080",
-        "proxy_alias": "/",
-        "proxy_backend_alias: "/"
+        "proxy": {
+            "protocol": "http://",
+            "hostname": "localhost",
+            "port": "8080",
+            "alias": "/",
+            "backend_alias: "/"
+        }
     }
 
 ## Proxying the PHP files in http://domain.tld/blog to php-fpm server
 
 This configuration sets the "/blog" location to be served from the "/usr/share/wordpress" directory. Then it defines the index.php directory index to be used in this director and its subdirectories.
 
-The Match option is used in the locations section, so all the requests matching the ".php" files in the "/blog" location will be forwarded to the PHP-FPM server running on fcgi://localhost:9000. The value of "proxy_backend_alias" describes that the root directory for the web-application in the backend server is "/usr/share/wordpress". The request for "http://domain.tld/blog/posts/new_post.php" will be therefore forwareded to backend server which will try to serve the "/usr/shared/wordpress/blog/posts/new_post.php" file.
+The Match option is used in the locations section, so all the requests matching the ".php" files in the "/blog" location will be forwarded to the PHP-FPM server running on fcgi://localhost:9000. The value of "backend_alias" describes that the root directory for the web-application in the backend server is "/usr/share/wordpress". The request for "http://domain.tld/blog/posts/new_post.php" will be therefore forwareded to backend server which will try to serve the "/usr/shared/wordpress/blog/posts/new_post.php" file.
 
     {
         "virtualhost": "domain.tld",
@@ -439,10 +455,12 @@ The Match option is used in the locations section, so all the requests matching 
                 "index": "index.php",
                 "match": {
                     "\\.php$": {
-                        "proxy_protocol": "fcgi://",
-                        "proxy_hostname": "localhost",
-                        "proxy_port": "9000",
-                        "proxy_backend_alias": "/usr/share/wordpress/$1",
+                        "proxy": {
+                            "protocol": "fcgi://",
+                            "hostname": "localhost",
+                            "port": "9000",
+                            "backend_alias": "/usr/share/wordpress/$1",
+                        },
                         "allow": "all"
                     }
                 }

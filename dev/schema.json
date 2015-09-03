@@ -1,0 +1,180 @@
+{
+    "id": "http://github.com/micro-webapps/webconf-spec-schema#",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "schema for webconf-spec",
+    "type": "object",
+    "required": [ "version" ],
+    "properties": {
+        "certificate": {
+            "type": "string",
+            "description": "The full path to file containing the certificate to be used for the virtualhost or server."
+        },
+        "certificate_key": {
+            "type": "string",
+            "description": "The full path to file containing the certificate key to be used for the virtualhost or server."
+        },
+        "document_root": {
+            "type": "string",
+            "description": "The full path to directory acting as root directory for the virtualhost or server."
+        },
+        "index": {
+            "type": "string",
+            "description": "Name of the file served by default when found in directory (\"index.html\" for example). It can be also set to value `disabled` to disable to the index file completely. The value of `autoindex` will enable automatic generation of indexes similar to the Unix ls command or the Win32 dir shell command."
+        },
+        "version": {
+            "type": "string",
+            "description": "The version of the webconf-spec used in this configuration file. For the development version of webconf-spec, the value of this option should be set to \"dev\". This field MUST be always included."
+        },
+        "virtualhost": {
+            "type": "string",
+            "description": "Virtual host on which the web application should run."
+        },
+        "locations" : {
+            "type": "object",
+            "$ref": "#/definitions/locations",
+            "description": "Locations are used to configure the non-real paths on the webserver as they are used in the HTTP requests. Per-location configuration set by this option is applied to all sub-locations of the main location. The format of locations option is following: `\"locations\": { \"/first/location\": { \"option1\": \"value\", ... }, ... }`"
+        },
+        "directories" : {
+            "type": "object",
+            "$ref": "#/definitions/directories",
+            "description": "Directories are used to configure the real directories on the webserver. Per-directory configuration set by this option is applied to all sub-directories of the main directory. The format of directories option is following: `\"directories\": { \"/full/path/to/directory\": { \"option1\": \"value\", ... }, ... }`"
+        },
+        "redirects" : {
+            "type": "object",
+            "$ref": "#/definitions/redirects",
+            "description": "Redirects are used to redirect from one URL or path to another URL. The format of redirects option is following: `\"redirects\": { \"/from/url\": { \"option1\": \"value\", ... }, ... }`"
+        },
+        "proxy" : {
+            "type": "object",
+            "$ref": "#/definitions/proxy",
+            "description": "Proxy object is used to define HTTP proxy server related configuration."
+        },
+        "error_pages" : {
+            "type": "object",
+            "$ref": "#/definitions/error-pages",
+            "description": "Error pages are used to define error page showed to the HTTP client on particular HTTP error. The format of error_pages option is following: `\"error_pages\": { \"404\": \"/error/404.html\", ... }`"
+        },
+        "raw_config": {
+            "type": "object",
+            "$ref": "#/definitions/raw-config",
+            "description": "Raw config is used to define the raw config for the particular webserver. This can be used to specify special directives per webserver implementation. The format of raw_config option is following: `\"raw_config\": { \"httpd >= 2.4.0\": [ \"<IfModule mod_fcgid.c>\", ... ], ... }`"
+        },
+        "match" : {
+            "type": "object",
+            "$ref": "#/definitions/match",
+            "description": "This option is used to match files served by the webserver based on their names and configure the way webserver handles them. The format of locations option is following: `\"match\": { \"\\.php$\": { \"option1\": \"value\", ... }, ... }`"
+        }
+    },
+    "definitions": {
+        "proxy": {
+            "properties": {
+                "protocol": {
+                    "type": "string",
+                    "description": "The protocol used to connect the backend server. For example `http://`, `fcgi://` or `ajp://`."
+                },
+                "hostname": {
+                    "type": "string",
+                    "description": "The hostname or IP address of the backend server running the web application. If the web application backend is accessible on `http://internal.domain.tld/wordpress`, then the value of this option should be `internal.domain.tld`."
+                },
+                "port": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "The port of the backend server running the web application."
+                },
+                "alias": {
+                    "type": "string",
+                    "description": "The alias location of the web application on the frontend server. If the web application should be accessible on `http://domain.tld/blog`, then the value of this option should be `/blog`."
+                },
+                "backend_alias": {
+                    "type": "string",
+                    "description": "The alias location of the web application on the backend server. If the web application backend is accessible on `http://internal.domain.tld/wordpress`, then the value of this option should be `/wordpress`."
+                },
+                "uds": {
+                    "type": "string",
+                    "description": "The full path to UNIX Domain Socket which should be used to connect the backend. When both hostname/port and uds options are specified, the uds MUST be used prioritely."
+                }
+            }
+        },
+        "match-entry": {
+            "properties": {
+                "proxy": {
+                    "type": "object",
+                     "$ref": "#/definitions/proxy"
+                },
+                "allow": {
+                    "enum": [ "all", "local", "deny" ]
+                }
+            }
+        },
+        "match": {
+            "patternProperties": {
+                "^.*$": { "$ref": "#/definitions/match-entry" }
+            }
+        },
+        "locations-directories-entry": {
+            "properties": {
+                "alias": {
+                    "type": "string",
+                    "description": "When used in locations, sets the real directory as an alias for the location. If the content of `/var/www/html` directory should be accessible as `http://domain.tld/blog`, then the value of this option should be `/var/www/html`. When used in directories, sets the alias for the directory. If the directory should be accessible as `http://domain.tld/blog`, then the value of this option should be `/blog`."
+                },
+                "index": {
+                    "type": "string",
+                    "description": "Name of the file served by default when found in directory (\"index.html\" for example). It can be also set to value `disabled` to disable to the index file completely. The value of `autoindex` will enable automatic generation of indexes similar to the Unix ls command or the Win32 dir shell command."
+                },
+                "match" : {
+                    "type": "object",
+                    "$ref": "#/definitions/match",
+                    "description": "This option is used to match files served by the webserver based on their names and configure the way webserver handles them. The format of locations option is following: `\"match\": { \"\\\\.php$\": { \"option1\": \"value\", ... }, ... }`"
+                },
+                "proxy" : {
+                    "type": "object",
+                    "$ref": "#/definitions/proxy"
+                }
+            }
+        },
+        "locations": {
+            "patternProperties": {
+                "^(/[^/]+)+$": { "$ref": "#/definitions/locations-directories-entry" }
+            },
+            "additionalProperties": false
+        },
+        "directories": {
+            "patternProperties": {
+                "^.*$": { "$ref": "#/definitions/locations-directories-entry" }
+            },
+            "additionalProperties": false
+        },
+        "redirects-entry": {
+            "required": [ "to" ],
+            "properties": {
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
+        "redirects": {
+            "patternProperties": {
+                "^(/[^/]+)+$": { "$ref": "#/definitions/redirects-entry" }
+            },
+            "additionalProperties": false
+        },
+        "error-pages": {
+            "patternProperties": {
+                "^[0-9][0-9][0-9]$": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "raw-config": {
+            "patternProperties": {
+                "^.*$": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string" }
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}
