@@ -1,0 +1,154 @@
+{
+    "id": "http://github.com/micro-webapps/webconf-spec-schema#",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "schema for webconf-spec",
+    "type": "object",
+    "required": [ "version" ],
+    "properties": {
+        "certificate": {
+            "type": "string"
+        },
+        "certificate_key": {
+            "type": "string"
+        },
+        "document_root": {
+            "type": "string"
+        },
+        "index": {
+            "type": "string"
+        },
+        "version": {
+            "type": "string"
+        },
+        "virtualhost": {
+            "type": "string"
+        },
+        "locations" : {
+            "type": "object",
+            "$ref": "#/definitions/locations"
+        },
+        "directories" : {
+            "type": "object",
+            "$ref": "#/definitions/directories"
+        },
+        "redirects" : {
+            "type": "object",
+            "$ref": "#/definitions/redirects"
+        },
+        "proxy" : {
+            "type": "object",
+            "$ref": "#/definitions/proxy"
+        },
+        "error_pages" : {
+            "type": "object",
+            "$ref": "#/definitions/error-pages"
+        },
+        "raw_config": {
+            "type": "object",
+            "$ref": "#/definitions/raw-config"
+        }
+    },
+    "definitions": {
+        "proxy": {
+            "properties": {
+                "protocol": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "alias": {
+                    "type": "string"
+                },
+                "backend_alias": {
+                    "type": "string"
+                },
+                "uds": {
+                    "type": "string"
+                }
+            }
+        },
+        "match-entry": {
+            "properties": {
+                "proxy": {
+                    "type": "object",
+                     "$ref": "#/definitions/proxy"
+                },
+                "allow": {
+                    "enum": [ "all", "local", "deny" ]
+                }
+            }
+        },
+        "match": {
+            "patternProperties": {
+                "^.*$": { "$ref": "#/definitions/match-entry" }
+            }
+        },
+        "locations-directories-entry": {
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "index": {
+                    "type": "string"
+                },
+                "match" : {
+                    "type": "object",
+                    "$ref": "#/definitions/match"
+                },
+                "proxy" : {
+                    "type": "object",
+                    "$ref": "#/definitions/proxy"
+                }
+            }
+        },
+        "locations": {
+            "patternProperties": {
+                "^(/[^/]+)+$": { "$ref": "#/definitions/locations-directories-entry" }
+            },
+            "additionalProperties": false
+        },
+        "directories": {
+            "patternProperties": {
+                "^.*$": { "$ref": "#/definitions/locations-directories-entry" }
+            },
+            "additionalProperties": false
+        },
+        "redirects-entry": {
+            "required": [ "to" ],
+            "properties": {
+                "to": {
+                    "type": "string"
+                }
+            }
+        },
+        "redirects": {
+            "patternProperties": {
+                "^(/[^/]+)+$": { "$ref": "#/definitions/redirects-entry" }
+            },
+            "additionalProperties": false
+        },
+        "error-pages": {
+            "patternProperties": {
+                "^[0-9][0-9][0-9]$": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "raw-config": {
+            "patternProperties": {
+                "^.*$": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string" }
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}

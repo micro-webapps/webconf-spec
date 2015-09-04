@@ -1,0 +1,36 @@
+{
+    "version": "dev",
+    "directories": {
+        "/var/lib/owncloud/apps": {
+            "alias": "/owncloud/apps-appstore",
+            "allow": "local"
+        },
+        "/var/lib/owncloud/assets": {
+            "alias": "/owncloud/assets",
+            "allow": "local"
+        },
+        "/usr/share/owncloud": {
+            "alias": "/owncloud",
+            "allow": "local",
+            "match": {
+                "(\\.|autotest|occ|issue|indie|db_|console).*": {
+                    "allow": "none"
+                },
+                "(3rdparty|lib|config|templates)": {
+                    "allow": "none"
+                }
+            }
+        },
+        "/var/lib/owncloud/data": {
+            "allow": "none"
+        }
+    },
+    "redirects": {
+        "/.well-known/carddav": {
+            "to": "/owncloud/remote.php/carddav"
+        },
+        "/.well-known/caldav": {
+            "to": "/owncloud/remote.php/caldav"
+        }
+    }
+}

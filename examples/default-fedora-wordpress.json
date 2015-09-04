@@ -1,0 +1,16 @@
+{
+    "version": "dev",
+    "directories": {
+        "/usr/share/wordpress": {
+            "alias": "/wordpress",
+            "allow": "local"
+        },
+        "/usr/share/wordpress/wp-content/plugins/akismet": {
+            "match": {
+                "\\.(php|txt)$": {
+                    "allow": "none"
+                }
+            }
+        }
+    }
+}
