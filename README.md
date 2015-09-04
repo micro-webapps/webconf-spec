@@ -8,7 +8,7 @@ It can be used to create web applications without dependency on any particular w
 # Table of Contents
 
   * [Description of webconf-spec - development version](dev/README.md)
-  * [JSON Schema of webconf-spec in Docson](http://lbovet.github.io/docson/index.html#https://raw.githubusercontent.com/micro-webapps/webconf-spec/master/dev/schema.json)
+  * [JSON Schema of webconf-spec in Docson](http://micro-webapps.github.io/webconf-spec/#https://raw.githubusercontent.com/micro-webapps/webconf-spec/master/dev/schema.json)
   * Current implementations:
     * [httpd-cfg](https://github.com/micro-webapps/httpd-cfg) - Implementation generating Apache httpd configuration files.
     * [haproxy-cfg](https://github.com/micro-webapps/haproxy-cfg) - Implementation generating HAProxy configuration files.
