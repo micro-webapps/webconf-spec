@@ -102,7 +102,7 @@
                      "$ref": "#/definitions/proxy"
                 },
                 "allow": {
-                    "enum": [ "all", "local", "deny" ]
+                    "enum": [ "all", "local", "none" ]
                 }
             }
         },
@@ -154,7 +154,8 @@
         },
         "redirects": {
             "patternProperties": {
-                "^(/[^/]+)+$": { "$ref": "#/definitions/redirects-entry" }
+                "^(/[^/]+)+$": { "$ref": "#/definitions/redirects-entry" },
+                "^/$": { "$ref": "#/definitions/redirects-entry" }
             },
             "additionalProperties": false
         },

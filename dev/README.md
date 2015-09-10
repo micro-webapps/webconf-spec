@@ -142,7 +142,7 @@ The special options which can be used in Match option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. The "deny" value, as well as any other undefined value, denies anyone to access the file. The default value for all locations or directories is "all".|
+| allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. The "none" value, as well as any other undefined value, denies anyone to access the file. The default value for all locations or directories is "all".|
 
 
 This allows for example proxying the PHP files to php-fpm server:
