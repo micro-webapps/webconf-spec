@@ -34,11 +34,6 @@
             "$ref": "#/definitions/locations",
             "description": "Locations are used to configure the non-real paths on the webserver as they are used in the HTTP requests. Per-location configuration set by this option is applied to all sub-locations of the main location. The format of locations option is following: `\"locations\": { \"/first/location\": { \"option1\": \"value\", ... }, ... }`"
         },
-        "directories" : {
-            "type": "object",
-            "$ref": "#/definitions/directories",
-            "description": "Directories are used to configure the real directories on the webserver. Per-directory configuration set by this option is applied to all sub-directories of the main directory. The format of directories option is following: `\"directories\": { \"/full/path/to/directory\": { \"option1\": \"value\", ... }, ... }`"
-        },
         "redirects" : {
             "type": "object",
             "$ref": "#/definitions/redirects",
@@ -68,26 +63,13 @@
     "definitions": {
         "proxy": {
             "properties": {
-                "protocol": {
+                "url": {
                     "type": "string",
-                    "description": "The protocol used to connect the backend server. For example `http://`, `fcgi://` or `ajp://`."
-                },
-                "hostname": {
-                    "type": "string",
-                    "description": "The hostname or IP address of the backend server running the web application. If the web application backend is accessible on `http://internal.domain.tld/wordpress`, then the value of this option should be `internal.domain.tld`."
-                },
-                "port": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "The port of the backend server running the web application."
+                    "description": "The URL on which the backend servers listens to requests. The path part of the URL can contain special `$1` string. When used in the `match` option, the implementation MUST configure the webserver to replace `$1` with the name of file matching the `match` options. When the `match` option is used in the `locations` option, the file name used as replacement for `$1` MUST also include the path to the file starting at the location configured in this particular `locations` option."
                 },
                 "alias": {
                     "type": "string",
                     "description": "The alias location of the web application on the frontend server. If the web application should be accessible on `http://domain.tld/blog`, then the value of this option should be `/blog`."
-                },
-                "backend_alias": {
-                    "type": "string",
-                    "description": "The alias location of the web application on the backend server. If the web application backend is accessible on `http://internal.domain.tld/wordpress`, then the value of this option should be `/wordpress`."
                 },
                 "uds": {
                     "type": "string",
@@ -111,11 +93,11 @@
                 "^.*$": { "$ref": "#/definitions/match-entry" }
             }
         },
-        "locations-directories-entry": {
+        "locations-entry": {
             "properties": {
                 "alias": {
                     "type": "string",
-                    "description": "When used in locations, sets the real directory as an alias for the location. If the content of `/var/www/html` directory should be accessible as `http://domain.tld/blog`, then the value of this option should be `/var/www/html`. When used in directories, sets the alias for the directory. If the directory should be accessible as `http://domain.tld/blog`, then the value of this option should be `/blog`."
+                    "description": "When used in locations, sets the real directory as an alias for the location. If the content of `/var/www/html` directory should be accessible as `http://domain.tld/blog`, then the value of this option should be `/var/www/html`."
                 },
                 "index": {
                     "type": "string",
@@ -134,13 +116,7 @@
         },
         "locations": {
             "patternProperties": {
-                "^(/[^/]+)+$": { "$ref": "#/definitions/locations-directories-entry" }
-            },
-            "additionalProperties": false
-        },
-        "directories": {
-            "patternProperties": {
-                "^.*$": { "$ref": "#/definitions/locations-directories-entry" }
+                "^(/[^/]+)+$": { "$ref": "#/definitions/locations-entry" }
             },
             "additionalProperties": false
         },
