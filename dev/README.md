@@ -14,9 +14,7 @@ Table of Contents
     * [Redirects option](#redirects-option)
     * [Proxy options](#proxy-options)
     * [Match option](#match-option)
-    * [Directories option](#directories-option)
     * [Locations option](#locations-option)
-    * [Directories versus Locations](#directories-versus-locations)
     * [Error pages option](#error-pages-option)
     * [Raw config option](#raw-config-option)
     * [Load balancing options](#load-balancing-options)
@@ -107,28 +105,20 @@ The implementation MUST configure the webserver to redirect from the `from` URL 
 
 ## Proxy options
 
-This section describes the proxy related webconf-spec JSON fields. They can be used in the root section of webconf-spec or in "directories" or "locations" section as described later in this document.
+This section describes the proxy related webconf-spec JSON fields. They can be used in the root section of webconf-spec or in `locations` or `match` sections as described later in this document.
 
     "proxy": {
-        "protocol": "http://",
-        "hostname": "localhost",
-        "port": "8080",
+        "url": "http://localhost:8080/"
         "alias": "/",
-        "backend_alias: "/"
     }
 
 The special options which can be used in the Proxy option are:
     
 | Key | Type | Meaning |
 |-----|------|---------|
-| protocol | String | The protocol used to connect the backend server. For example "http://", "fcgi://" or "ajp://". |
-| alias | String | The alias location of the web application on the frontend server. If the web application should be accessible on "http://domain.tld/blog", then the value of this option should be "/blog". |
-| backend_alias | String | The alias location of the web application on the backend server. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "/wordpress". When used in Match option, the implementation MUST configure the webserver to allow replacement of `$1` in the backend_alias value with the name of file matching the Match options. When the Match option is used in the Locations option (or Directories option), the file name used as replacement for `$1` MUST also include the path to the file starting at the location (or directory) configured in this particular Locations option (or Directories option). See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) as an example of this configuration. |
-| hostname | String | The hostname or IP address of the backend server running the web application. If the web application backend is accessible on "http://internal.domain.tld/wordpress", then the value of this option should be "internal.domain.tld". |
-| port | Integer | The port of the backend server running the web application. |
-| uds | String | The full path to UNIX Domain Socket which should be used to connect the backend. When both hostname/port and uds options are specified, the uds MUST be used prioritely. |
-
-If the protocol option is set to an empty string or is not defined, but all the other options needed to proxy the requests are specified, the webconf-spec implementation MUST use "http://" as default. If the alias or the backend_alias options are set to an emptry string or are not defined, the webconf-spec implementation MUST use "/" string as default value.
+| url| String | URL on which the backend servers listens to requests. The path part of the URL can contain special `$1` string. When used in the `match` option, the implementation MUST configure the webserver to replace `$1` with the name of file matching the `match` options. When the `match` option is used in the `locations` option, the file name used as replacement for `$1` MUST also include the path to the file starting at the location configured in this particular `locations` option. See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) for an example of this configuration. |
+| alias | String | The alias location of the web application on the frontend server. If the web application should be accessible on "http://domain.tld/blog", then the value of this option should be "/blog". If the `alias` option is set to an emptry string or is not defined, the webconf-spec implementation MUST use "/" string as default value. |
+| uds | String | The full path to UNIX Domain Socket which should be used to connect the backend. When both `url` and `uds` options are specified, the `uds` MUST be used prioritely. |
 
 ## Match option
 
@@ -149,7 +139,7 @@ The special options which can be used in Match option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. The "none" value, as well as any other undefined value, denies anyone to access the file. The default value for all locations or directories is "all".|
+| allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. The "none" value, as well as any other undefined value, denies anyone to access the file. The default value for all `locations` is "all".|
 
 
 This allows for example proxying the PHP files to php-fpm server:
@@ -157,71 +147,16 @@ This allows for example proxying the PHP files to php-fpm server:
     "match": {
         "\\.php$": {
             "proxy" {
-                "protocol": "fcgi://",
-                "backend_alias": "/wordpress/$1",
-                "hostname": "localhost",
-                "port:", "9000"
+                "url": "fcgi://localhost:9000/wordpress/$1"
             },
             "allow": "all"
         }
     }
 
-## Directories option
-
-This section describes the directories related webconf-spec JSON options. Directories are used to configure the real directories on the webserver. Per-directory configuration set by this option MUST be applied to all sub-directories of the main directory. All the Proxy options and Match option can be used in the Directories options as well as the "index" option.
-
-The format of directories option is following:
-
-    "directories": {
-        "/full/path/to/directory": {
-            "option1": "value",
-            "option2": "value"
-        },
-        "/full/path/to/another/directory": {
-            "option1": "value",
-            "option2": "value"
-        }
-    }
-
-The special options which can be used in Directories option are:
-
-| Key | Type | Meaning |
-|-----|------|---------|
-| Alias | String | Sets the alias for the directory. If the directory should be accessible as "http://domain.tld/blog", then the value of this option should be "/blog".|
-
-
-If Match option appears in the Directories option, all files matching the regular expression in the main directory or its sub-directories MUST be configured by this Match option.
-
-Using Directories option, it is for example possible to disable access to particular files in particular directory:
-
-    {
-        "directories": {
-            "/usr/share/wordpress/wp-content/plugins/akismet": {
-                "match": {
-                    "regex": "\\.(php|txt)$",
-                    "allow": "none"
-                }
-            },
-            "/usr/share/wordpress/": {
-                "alias": "/blog"
-            }
-        }
-    }
-
-Or it is for example possible to serve static local directory as "http://domain.tld/static":
-
-    {
-        "virtualhost": "domain.tld",
-        "directories": {
-            "/var/www/my-static-dir": {
-                "alias": "/static"
-            }
-        }
-    }
 
 ## Locations option
 
-This section describes the locations options. Locations are used to configure the non-real paths on the webserver as they are used in the HTTP requests. Per-location configuration set by this option MUST be applied to all sub-locations of the main location. All the Proxy options and Match option can be used in the Locations options as well as the "index" option.
+This section describes the locations options. Locations are used to configure the mapping of path part of URL to real directories on the webserver. Per-location configuration set by this option MUST be applied to all sub-locations of the main location. The `proxy` and `match` options can be used in the `locations` option as well as the `index` option.
 
 The format of locations option is following:
 
@@ -236,15 +171,15 @@ The format of locations option is following:
         }
     }
 
-The special options which can be used in Directories option are:
+The special options which can be used in `locations` option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
 | Alias | String | Sets the real directory as an alias for the location. If the content of "/var/www/html" directory should be accessible as "http://domain.tld/blog", then the value of this option should be "/var/www/html".|
 
-If Match option appears in the Locations option, all the files matching the regular expression in the main location or its sub-locations MUST be configured by this Match option.
+If the `match` option appears in the `locations` option, all the files matching the regular expression in the main location or its sub-locations MUST be configured by this `match` option.
 
-Using Locations option, it is for example possible to disable access to particular files in particular directory:
+Using the `locations` option, it is for example possible to disable access to particular files in particular directory:
 
     {
         "locations": {
@@ -271,48 +206,11 @@ Or it is for example possible to serve static local directory as "http://domain.
         }
     }
 
-## Directories versus Locations
-
-The Directories can be converted to locations using the "alias" option and vice-versa. When writing configuration file in webconf-spec format, the directories and locations MUST remain convertable to each other.
-
-It is therefore wrong to write following webconf-spec file:
-
-    {
-        "directories": {
-            "/usr/share/wordpress/wp-content/plugins/akismet": {
-                "match": {
-                    "regex": "\\.(php|txt)$",
-                    "allow": "none"
-                }
-            }
-        }
-    }
-
-The reason why this is wrong is that the implementation has no idea on which URL the directory "/usr/share/wordpress/wp-content/plugins/akismet" is being served. To fix this, we simply have to set an alias to any prefix of the "/usr/share/wordpress/wp-content/plugins/akismet" directory:
-
-    {
-        "directories": {
-            "/usr/share/wordpress/wp-content/plugins/akismet": {
-                "match": {
-                    "regex": "\\.(php|txt)$",
-                    "allow": "none"
-                }
-            },
-            "/usr/share/wordpress/": {
-                "alias": "/blog"
-            }
-        }
-    }
-
-This is now correct, because the implementation can compute the correct URL for the "/usr/share/wordpress/wp-content/plugins/akismet" directory - it would be "/blog/wp-content/plugins/akismet".
-
-This allows simpler writing of webconf-spec configuration, because the author of the configuration can decide if he wants to describe the configuration based on the locations or directories.
-
 ## Error pages option
 
 This option is used to define error page showed to the HTTP client on particular HTTP error.
 
-The format of error_pages option is following:
+The format of `error_pages` option is following:
 
     "error_pages": {
         "404": "/error/404.html",
@@ -323,7 +221,7 @@ The format of error_pages option is following:
 
 This option is used to define the raw config for the particular webserver. This can be used to specify special directives per webserver implementation.
 
-The format of the raw_config option is following:
+The format of the `raw_config` option is following:
 
     "raw_config": {
         "httpd >= 2.4.0": [
@@ -345,17 +243,17 @@ The format of the raw_config option is following:
         ]
     }
 
-The name of the webserver used in the raw_config option depends on the webconf-spec implementation. Allowed comparison operators are ">", "<", ">=", "<=", "==" and "!=" as known from C language. The version is in [Semantic Versioning 2.0.0](http://semver.org/spec/v2.0.0.html) format.
+The name of the webserver used in the `raw_config` option depends on the webconf-spec implementation. Allowed comparison operators are ">", "<", ">=", "<=", "==" and "!=" as known from C language. The version is in [Semantic Versioning 2.0.0](http://semver.org/spec/v2.0.0.html) format.
 
-The raw config option can be used in the Match option, Directories option, Locations option and in the root object of the webconf-spec configuration.
+The `raw config` option can be used in the `match` option, `locations` option and in the root object of the webconf-spec configuration.
 
-The raw config option SHOULD be used only when there is no other way how to describe particular configuration using other webconf-spec options.
+The `raw config` option SHOULD be used only when there is no other way how to describe particular configuration using other webconf-spec options.
 
 ## Load balancing options
 
 These options are used to define the load balancing. It defines the balancing method, session persistence method and list of backend servers user by the balancer.
 
-The format of the balancers option is following:
+The format of the `balancers` option is following:
 
     "balancers" {
         "balancer-name": {
@@ -367,9 +265,7 @@ The format of the balancers option is following:
             }.
             "members": [
                 {
-                    "protocol": "http://",
-                    "hostname": "member1",
-                    "port": "8080",
+                    "url": "http://member1:8080/
                     "weight": 50,
                 }
             ]
@@ -379,7 +275,7 @@ The format of the balancers option is following:
         }
     }
 
-The special options which can be used in balancers option are:
+The special options which can be used in `balancers` option are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
@@ -387,10 +283,8 @@ The special options which can be used in balancers option are:
 | persistence | String | Defines the way how the session persistence is achieved, so all requests from the single session are handled by the same backend server. When not defined, the session persistence is not kept. |
 | persistence.method | String | Defines the method used to achieve the session persistence. When set to `generate_cookie`, the webserver SHOULD generate the cookie to route requests to proper backends. When set to `use_cookie_or_url`, the webserver SHOULD use the cookie or URL id generated by the backend. When set to `none`, no session persistence is kept. In all cases, the first request is forwarded to one of the backends according to load balancing method. |
 | members | String | Defines the list of members for this balancer. |
-| members.protocol | String | Defines the protocol used by the backend the same way as in the Proxy option. |
-| members.hostname | String | Defines the hostname or IP address of the backend the same way as in the Proxy option. |
-| members.port | String | Defines the port on which the backend is listening the same was as in the Proxy option. |
-| members.weight | Integer | Number between 1 and 100 which defines the normalized weighted load applied to the backend.|
+| members.url| String | URL on which the backend servers listens to requests. The path part of the URL is ignored. |
+| members.weight | Integer | Number between 1 and 100 which defines the normalized weighted load applied to the backend. The requests are divided between balancer members in the ratio defined by their weights. When no weight is defined, the webconf-spec implementation MUST use 1 as default. When there are for example 3 balancer members with weights 3, 1 and 1, then every 5 new requests MUST be distributed across the backends as the following: 3 requests will be directed to member1, one request will go to member2, and another one to member3. |
 
 
 ## Merging the webconf-spec formatted files
@@ -406,9 +300,9 @@ This sections contains few commented examples of the webconf-spec configuration 
     {
         "version": "dev",
         "virtualhost": "domain.tld",
-        "directories": {
-            "/var/www/my-static-dir": {
-                "alias": "/static"
+        "locations": {
+            "/static": {
+                "alias": "/var/www/my-static-dir"
             }
         }
     }
@@ -420,9 +314,9 @@ This sections contains few commented examples of the webconf-spec configuration 
         "virtualhost": "domain.tld",
         "certificate": "/etc/pki/tls/certs/domain.tld.crt",
         "certificate_key": "/etc/pki/tls/private/domain.tld.key",
-        "directories": {
-            "/var/www/my-static-dir": {
-                "alias": "/static"
+        "locations": {
+            "/static": {
+                "alias": "/var/www/my-static-dir"
             }
         }
     }
@@ -439,9 +333,9 @@ This sections contains few commented examples of the webconf-spec configuration 
                 "to": "https://domain.tld/"
             }
         },
-        "directories": {
-            "/var/www/my-static-dir": {
-                "alias": "/static"
+        "locations": {
+            "/static": {
+                "alias": "/var/www/my-static-dir"
             }
         }
     }
@@ -450,12 +344,12 @@ This sections contains few commented examples of the webconf-spec configuration 
 
     {
         "version": "dev",
-        "directories": {
-            "/usr/share/wordpress": {
-                "alias": "/wordpress",
+        "locations": {
+            "/wordpress": {
+                "alias": "/usr/share/wordpress",
                 "allow": "local"
             },
-            "/usr/share/wordpress/wp-content/plugins/akismet": {
+            "/wordpress/wp-content/plugins/akismet": {
                 "match": {
                     "\\.(php|txt)$": {
                         "allow": "none"
@@ -467,26 +361,10 @@ This sections contains few commented examples of the webconf-spec configuration 
 
 ## Proxying the webapp.domain.tld to another HTTP server
 
-We do not specify the alias, backend_alias or protocol here, because we can use their default values.
-
     {
         "virtualhost": "webapp.domain.tld",
         "proxy": {
-            "hostname": "localhost",
-            "port": "8080"
-        }
-    }
-
-If we would like to specify all the options although it duplicates the default values, the example would look like this:
-
-    {
-        "virtualhost": "webapp.domain.tld",
-        "proxy": {
-            "protocol": "http://",
-            "hostname": "localhost",
-            "port": "8080",
-            "alias": "/",
-            "backend_alias: "/"
+            "url": "http://localhost:8080/"
         }
     }
 
@@ -494,7 +372,7 @@ If we would like to specify all the options although it duplicates the default v
 
 This configuration sets the "/blog" location to be served from the "/usr/share/wordpress" directory. Then it defines the index.php directory index to be used in this director and its subdirectories.
 
-The Match option is used in the locations section, so all the requests matching the ".php" files in the "/blog" location will be forwarded to the PHP-FPM server running on fcgi://localhost:9000. The value of "backend_alias" describes that the root directory for the web-application in the backend server is "/usr/share/wordpress". The request for "http://domain.tld/blog/posts/new_post.php" will be therefore forwareded to backend server which will try to serve the "/usr/shared/wordpress/blog/posts/new_post.php" file.
+The Match option is used in the locations section, so all the requests matching the ".php" files in the "/blog" location will be forwarded to the PHP-FPM server running on fcgi://localhost:9000/. The path part of the `url` describes that the root directory for the web-application in the backend server is "/usr/share/wordpress". The request for "http://domain.tld/blog/posts/new_post.php" will be therefore forwareded to backend server which will try to serve the "/usr/shared/wordpress/blog/posts/new_post.php" file.
 
     {
         "virtualhost": "domain.tld",
@@ -505,10 +383,7 @@ The Match option is used in the locations section, so all the requests matching 
                 "match": {
                     "\\.php$": {
                         "proxy": {
-                            "protocol": "fcgi://",
-                            "hostname": "localhost",
-                            "port": "9000",
-                            "backend_alias": "/usr/share/wordpress/$1",
+                            "url": "fcgi://localhost:9000/usr/share/wordpress/$1"
                         },
                         "allow": "all"
                     }
