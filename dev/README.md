@@ -291,6 +291,51 @@ The special options which can be used in `balancers` option are:
 
 Although the webconf-spec describes the configuration of the single web application, all the implementations SHOULD expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same options which are in contrast to each other, the implementation MUST treat it as an error.
 
+The example of merging two configuration files using the locations section. The first configuration:
+
+    {
+        "version": "dev",
+        "virtualhost": "domain.tld",
+        "certificate": "/etc/pki/tls/certs/domain.tld.crt",
+        "certificate_key": "/etc/pki/tls/private/domain.tld.key",
+        "locations": {
+            "/static": {
+                "alias": "/var/www/my-static-dir"
+            }
+        }
+    }
+
+The second configuration:
+
+    {
+        "version": "dev",
+        "virtualhost": "domain.tld",
+        "locations": {
+            "/static2": {
+                "alias": "/var/www/my-static-dir"
+            }
+        }
+    }
+
+Resulting configuration:
+
+    {
+        "version": "dev",
+        "virtualhost": "domain.tld",
+        "certificate": "/etc/pki/tls/certs/domain.tld.crt",
+        "certificate_key": "/etc/pki/tls/private/domain.tld.key",
+        "locations": {
+            "/static": {
+                "alias": "/var/www/my-static-dir"
+            },
+            "/static2": {
+                "alias": "/var/www/my-static-dir"
+            }
+        }
+    }
+
+In case when the "certificate" option would be used in both input configuration files with different valud, the implentation would have to return an error. The same would for example happen when both input files define the same location.
+
 # Examples of webconf-spec specification
 
 This sections contains few commented examples of the webconf-spec configuration files.
