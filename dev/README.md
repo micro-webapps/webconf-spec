@@ -44,9 +44,9 @@ Webconfig-spec is specification of webserver configuration for web applications 
 
 It can be used to create web applications without dependency on any particular webserver implementation. In this case, the web application developer writes single configuration file in JSON, which is translated to the particular webserver's configuration on the user's machine when he deploys the application. This is achieved by the webconf-spec implementation shipped together with the webserver.
 
-# Are there any implementation already?
+# Are there any implementations already?
 
-Yes, we have following implementations generating the native webserver's configuration from the webconf-spec files:
+Yes, there are following official implementations generating the native webserver's configuration from the webconf-spec files:
 
 - [httpd-cfg](https://github.com/micro-webapps/httpd-cfg) - Reads the .json webconf-spec files from input directory and generates the Apache httpd configuration in the output directory.
 - [haproxy-cfg](https://github.com/micro-webapps/haproxy-cfg) - Reads the .json webconf-spec files from input directory and generates the HAProxy configuration in the output directory.
@@ -54,35 +54,51 @@ Yes, we have following implementations generating the native webserver's configu
 
 # Format
 
-The files describing a webserver configuration in accordance with the Webconf-spec specification are represented using [JSON](http://json.org/).
+The files describing a webserver configuration in accordance with the webconf-spec specification are represented using [JSON](http://json.org/).
 
 All field names in the specification are **case sensitive**.
 
+# Definitions
+
+For the purposes of this specification, we define the following terms:
+
+* object - JSON object as defined in the [JSON Specification](http://json.org/).
+* property - a name/value pair inside a JSON object.
+* property name - the name (or key) portion of the property.
+* property value - the value portion of the property.
+
+    // JSON object or just "object"
+    {
+        // The name/value pair together is a "property".
+        "propertyName": "propertyValue"
+    }
+
+
 # Description of webconf-spec specification
 
-It is important to note that the webconf-spec is not trying to be full featured webserver configuration specification. Usually, the web applications do not use all features of the webservers and therefore we have tried to keep things simple and support only features which are widely used by web applications to configure the webserver and which are shared between all widely used webservers.
+It is important to note that the webconf-spec is not trying to be full featured webserver configuration specification. Usually, the web applications do not use all features of the webservers and therefore the specification tries to keep things simple and to support only features which are widely used by web applications to configure the webserver and which are shared between all widely used webservers.
 
-## General options
+## General properties
 
-This section describes the general webconf-spec JSON fields. They are used only in the root JSON object, except of the `index` option, which can be used in the in other JSON objects as described later in this specification. 
+This section describes the general webconf-spec properties. They are used only in the root object, except of the `index` property, which can be used also in other objects as described later in this specification. 
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| certificate | String | The full path to file containing the certificate to be used for the virtualhost or server. When using this option, the SSL for this virtualhost or server MUST be enabled by the implementation. |
-| certificate_key | String | The full path to file containing the certificate key to be used for the virtualhost or server. When using this option, the SSL for this virtualhost or server MUST be enabled by the implementation. |
-| document_root | String | The full path to directory acting as root directory for the virtualhost or server. |
-| index | String | Name (or white-space seperated list of names) of the files which SHOULD be served by default when found in directory ("index.html" for example). It can be also set to value `disabled` to disable to the index file completely. The value of `autoindex` will enable automatic generation of indexes similar to the Unix ls command or the Win32 dir shell command. |
-| version | String | The version of the webconf-spec used in this configuration file. For the development version of webconf-spec, the value of this option should be set to "dev". This field MUST be always included. |
-| virtualhost | String | Virtual host on which the web application should run. |
+| certificate | String | The full path to file containing the certificate to be used for the virtualhost or server. When using this property, the SSL for this virtualhost or server MUST be enabled by the implementation. |
+| certificate_key | String | The full path to file containing the certificate key to be used for the virtualhost or server. When using this property, the SSL for this virtualhost or server MUST be enabled by the implementation. |
+| document_root | String | The full path to directory acting as a root directory for the virtualhost or server. |
+| index | String | Name (or white-space seperated list of names) of the files which SHOULD be served by default when found in directory ("index.html" for example). It can be also set to value `disabled` to disable to the index file completely. The value of `autoindex` enables automatic generation of indexes similar to the Unix `ls` command or the Win32 `dir` shell command. |
+| version | String | The version of the webconf-spec used in this configuration file. For the development version of webconf-spec, the value of this property should be set to `dev`. This field MUST be always included. |
+| virtualhost | String | Virtual host on which the web application runs. |
 
 
-If the virtualhost option is set to an empty string or is not defined, the webconf-spec implementation SHOULD treat all the options as global (It means not bound to any virtualhost). If any of the other options is set to an empty string or is not defined, the webconf-spec implementation MUST ignore the option completely.
+If the virtualhost property is set to an empty string or is not defined, the webconf-spec implementation SHOULD treat all the properties as global (It means not bound to any virtualhost). If any of the other properties is set to an empty string or is not defined, the webconf-spec implementation MUST ignore the property completely.
 
-## Redirects option
+## Redirects object
 
-This section describes redirects option used to redirect from one URL or path to another URL. The Redirects option can be used only in the root object of the webconf-spec.
+This section describes `redirects` object used to redirect from one URL or path to another URL. The `redirects` object can be used only in the root object of the webconf-spec.
 
-The format of redirects option is following:
+The format of `redirects` object is following:
 
     "redirects": {
         "/from/url": {
@@ -95,7 +111,7 @@ The format of redirects option is following:
         }
     }
 
-The special options which can be used in redirects option are:
+The properties which can be used in `redirects` object are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
@@ -103,26 +119,30 @@ The special options which can be used in redirects option are:
 
 The implementation MUST configure the webserver to redirect from the `from` URL to `to` URL.
 
-## Proxy options
+## Proxy object
 
-This section describes the proxy related webconf-spec JSON fields. They can be used in the root section of webconf-spec or in `locations` or `match` sections as described later in this document.
+This section describes `proxy` object used to configure proxying. The `proxy` object can be used in the root section of webconf-spec or in `locations` or `match` objects as described later in this specification.
+
+The format of `proxy` object is following:
 
     "proxy": {
         "url": "http://localhost:8080/"
         "alias": "/",
     }
 
-The special options which can be used in the Proxy option are:
+The properties which can be used in the `proxy` object are:
     
 | Key | Type | Meaning |
 |-----|------|---------|
-| url| String | URL on which the backend servers listens to requests. The path part of the URL can contain special `$1` string. When used in the `match` option, the implementation MUST configure the webserver to replace `$1` with the name of file matching the `match` options. When the `match` option is used in the `locations` option, the file name used as replacement for `$1` MUST also include the path to the file starting at the location configured in this particular `locations` option. See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) for an example of this configuration. When the scheme used in the URL is `balancer://`, then the hostname defines the name of load balancer used for the load balancing. See the [Load balancing options](#load-balancing-options) for more information. |
-| alias | String | The alias location of the web application on the frontend server. If the web application should be accessible on "http://domain.tld/blog", then the value of this option should be "/blog". If the `alias` option is set to an emptry string or is not defined, the webconf-spec implementation MUST use "/" string as default value. |
-| uds | String | The full path to UNIX Domain Socket which should be used to connect the backend. When both `url` and `uds` options are specified, the `uds` MUST be used prioritely. |
+| url| String | URL on which the backend server listens to requests. The path part of the URL can contain special `$1` string. When used in the `match` object, the implementation MUST configure the webserver to replace `$1` with the name of file matching the `match` object. When the `match` object is used in the `locations` object, the file name used as replacement for `$1` MUST also include the path to the file starting at the location configured in this particular `locations` object. See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) for an example of this configuration. When the scheme used in the URL is `balancer://`, then the hostname defines the name of load balancer used for the load balancing. See the [Balancers object](#load-balancing-options) for more information. |
+| alias | String | The alias location of the web application on the frontend server. If the web application should be accessible on "http://domain.tld/blog", then the value of this property should be "/blog". If the `alias` property is set to an emptry string or is not defined, the webconf-spec implementation MUST use "/" string as default value. |
+| uds | String | The full path to UNIX Domain Socket which should be used to connect the backend. When both `url` and `uds` properties are specified, the `uds` MUST be used prioritely. |
 
-## Match option
+## Match object
 
-This section describes the match option. This option is used to match files served by the webserver based on their names and configure the way webserver handles them. All the Proxy options can be used in the Match option.
+This section describes the `match` object used to match files served by the webserver according to their names and configures the way webserver handles them. The `proxy` object can be used in the `match` object.
+
+The format of `match` object is following:
 
     "match": {
         "\\.regex_to_match_the_files$": {
@@ -135,14 +155,19 @@ This section describes the match option. This option is used to match files serv
         }
     }
 
-The special options which can be used in Match option are:
+The properties which can be used in `match` object are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| allow | String | Word defining the access permision to the files matching the Match option. The "all" value allows all web clients to access the files. The "local" value allows only users from localhost to access the files. The "none" value, as well as any other undefined value, denies anyone to access the file. The default value for all `locations` is "all".|
+| allow | String | Word defining the access permision to the files matching the `match` object. The `all` value allows all web clients to access the files. The `local` value allows only users from localhost to access the files. The `none` value, as well as any other undefined value, denies anyone to access the file. The default value for all `locations` is `all`.|
 
+The objects which can be used in `locations` object are:
 
-This allows for example proxying the PHP files to php-fpm server:
+| Object | Meaning |
+|-----|------|---------|
+| proxy | See the `proxy` object section for the description of `proxy` object in the `match` object.|
+
+For example, this allows proxying the PHP files to FCGI server:
 
     "match": {
         "\\.php$": {
@@ -154,11 +179,11 @@ This allows for example proxying the PHP files to php-fpm server:
     }
 
 
-## Locations option
+## Locations object
 
-This section describes the locations options. Locations are used to configure the mapping of path part of URL to real directories on the webserver. Per-location configuration set by this option MUST be applied to all sub-locations of the main location. The `proxy` and `match` options can be used in the `locations` option as well as the `index` option.
+This section describes the `locations` object used to configure the mapping of path part of URL to real directories on the webserver. Per-location configuration set by this object MUST be applied to all sub-locations of the main location. The `proxy` and `match` objects can be used in the `locations` object as well as the `index` object.
 
-The format of locations option is following:
+The format of `locations` object is following:
 
     "locations": {
         "/first/location": {
@@ -171,15 +196,23 @@ The format of locations option is following:
         }
     }
 
-The special options which can be used in `locations` option are:
+The properties which can be used in `locations` object are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| Alias | String | Sets the real directory as an alias for the location. If the content of "/var/www/html" directory should be accessible as "http://domain.tld/blog", then the value of this option should be "/var/www/html".|
+| alias | String | Sets the real directory as an alias for the location. If the content of "/var/www/html" directory should be accessible as "http://domain.tld/blog", then the value of this property should be "/var/www/html".|
+| allow | String | Word defining the access permision to the files matching the `match` object. The `all` value allows all web clients to access the files. The `local` value allows only users from localhost to access the files. The `none` value, as well as any other undefined value, denies anyone to access the file. The default value for all `locations` is `all`.|
+| index | String | Name (or white-space seperated list of names) of the files which SHOULD be served by default when found in directory ("index.html" for example). It can be also set to value `disabled` to disable to the index file completely. The value of `autoindex` enables automatic generation of indexes similar to the Unix `ls` command or the Win32 `dir` shell command. |
 
-If the `match` option appears in the `locations` option, all the files matching the regular expression in the main location or its sub-locations MUST be configured by this `match` option.
+The objects which can be used in `locations` object are:
 
-Using the `locations` option, it is for example possible to disable access to particular files in particular directory:
+| Object | Meaning |
+|-----|------|---------|
+| match | All the files matching the regular expression in the main location or its sub-locations MUST be configured by this `match` object.|
+| proxy | See the `proxy` object section for the description of `proxy` object in the `locations` object.|
+
+
+Using the `locations` object, it is for example possible to disable access to particular files in particular directory:
 
     {
         "locations": {
@@ -206,22 +239,24 @@ Or it is for example possible to serve static local directory as "http://domain.
         }
     }
 
-## Error pages option
+## Error pages object
 
-This option is used to define error page showed to the HTTP client on particular HTTP error.
+This section describes the `error_pages` object used to define error page served to the HTTP client on particular HTTP error. The `error_pages` object can be used only in the root object of the webconf-spec.
 
-The format of `error_pages` option is following:
+The format of `error_pages` object is following:
 
     "error_pages": {
         "404": "/error/404.html",
         "403": "/error/403.html"
     }
 
-## Raw config option
+The value of `error_pages` properties is relative path to the file served on the particular error code defined by the name of the property.
 
-This option is used to define the raw config for the particular webserver. This can be used to specify special directives per webserver implementation.
+## Raw config object
 
-The format of the `raw_config` option is following:
+This section describes the `raw_config` object used to define the raw config for the particular webserver. This can be used to specify special directives per webserver implementation. The `raw_config` object can be used only in the root object of the webconf-spec.
+
+The format of the `raw_config` object is following:
 
     "raw_config": {
         "httpd >= 2.4.0": [
@@ -243,17 +278,17 @@ The format of the `raw_config` option is following:
         ]
     }
 
-The name of the webserver used in the `raw_config` option depends on the webconf-spec implementation. Allowed comparison operators are ">", "<", ">=", "<=", "==" and "!=" as known from C language. The version is in [Semantic Versioning 2.0.0](http://semver.org/spec/v2.0.0.html) format.
+The name of the webserver used in the `raw_config` object depends on the webconf-spec implementation. Allowed comparison operators are ">", "<", ">=", "<=", "==" and "!=" as known from C language. The version is in [Semantic Versioning 2.0.0](http://semver.org/spec/v2.0.0.html) format.
 
-The `raw config` option can be used in the `match` option, `locations` option and in the root object of the webconf-spec configuration.
+The `raw config` object can be used in the `match` object, `locations` object and in the root object of the webconf-spec configuration.
 
-The `raw config` option SHOULD be used only when there is no other way how to describe particular configuration using other webconf-spec options.
+The `raw config` object SHOULD be used only when there is no other way how to describe particular configuration using other webconf-spec objects or properties.
 
-## Load balancing options
+## Balancers object
 
-These options are used to define the load balancing. It defines the balancing method, session persistence method and list of backend servers user by the balancer.
+This section describes the `balancers` object used to define the load balancing. It defines the load balancing method, session persistence method and list of backend servers used by the balancer. The `balancers` object can be used only in the root object of the webconf-spec.
 
-The format of the `balancers` option is following:
+The format of the `balancers` object is following:
 
     "balancers" {
         "balancer-name": {
@@ -275,9 +310,9 @@ The format of the `balancers` option is following:
         }
     }
 
-The name of the balancer is used in the [Proxy options](#proxy-options) to define the proxying of requests to the load balancer.
+The name of the balancer is used in the `proxy` object to define the proxying of requests to the load balancer.
 
-The special options which can be used in `balancers` option are:
+The properties which can be used in `balancers` object are:
 
 | Key | Type | Meaning |
 |-----|------|---------|
@@ -293,7 +328,7 @@ The special options which can be used in `balancers` option are:
 
 ## Merging the webconf-spec formatted files
 
-Although the webconf-spec describes the configuration of the single web application, all the implementations SHOULD expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same options which are in contrast to each other, the implementation MUST treat it as an error.
+Although the webconf-spec describes the configuration of the single web application, all the implementations SHOULD expect the set of webconf-spec formatted files as the input. This allows to configure multiple web applications running on the single virtualhost served in different locations. In case of two config files with the same properties which are in contrast to each other, the implementation MUST treat it as an error.
 
 The example of merging two configuration files using the locations section. The first configuration:
 
@@ -338,7 +373,7 @@ Resulting configuration:
         }
     }
 
-In case when the "certificate" option would be used in both input configuration files with different valud, the implentation would have to return an error. The same would for example happen when both input files define the same location.
+In case when the "certificate" property would be used in both input configuration files with different valud, the implentation MUST return an error. The same would for example happen when both input files define the same location.
 
 # Examples of webconf-spec specification
 
@@ -421,7 +456,7 @@ This sections contains few commented examples of the webconf-spec configuration 
 
 This configuration sets the "/blog" location to be served from the "/usr/share/wordpress" directory. Then it defines the index.php directory index to be used in this director and its subdirectories.
 
-The Match option is used in the locations section, so all the requests matching the ".php" files in the "/blog" location will be forwarded to the PHP-FPM server running on fcgi://localhost:9000/. The path part of the `url` describes that the root directory for the web-application in the backend server is "/usr/share/wordpress". The request for "http://domain.tld/blog/posts/new_post.php" will be therefore forwareded to backend server which will try to serve the "/usr/shared/wordpress/blog/posts/new_post.php" file.
+The Match object is used in the locations section, so all the requests matching the ".php" files in the "/blog" location will be forwarded to the PHP-FPM server running on fcgi://localhost:9000/. The path part of the `url` describes that the root directory for the web-application in the backend server is "/usr/share/wordpress". The request for "http://domain.tld/blog/posts/new_post.php" will be therefore forwareded to backend server which will try to serve the "/usr/shared/wordpress/blog/posts/new_post.php" file.
 
     {
         "virtualhost": "domain.tld",
