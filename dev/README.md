@@ -62,14 +62,14 @@ All field names in the specification are **case sensitive**.
 
 For the purposes of this specification, we define the following terms:
 
-* object - JSON object as defined in the [JSON Specification](http://json.org/).
-* property - a name/value pair inside a JSON object.
-* property name - the name (or key) portion of the property.
-* property value - the value portion of the property.
+- object - JSON object as defined in the [JSON Specification](http://json.org/).
+- property - a name/value pair inside a JSON object.
+- property name - the name (or key) portion of the property.
+- property value - the value portion of the property.
 
-    # JSON object or just "object"
+    // JSON object or just "object"
     {
-        # The name/value pair together is a "property".
+        // The name/value pair together is a "property".
         "propertyName": "propertyValue"
     }
 
