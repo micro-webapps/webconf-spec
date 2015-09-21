@@ -67,7 +67,7 @@ For the purposes of this specification, we define the following terms:
 * property name - the name (or key) portion of the property.
 * property value - the value portion of the property.
 
-
+For example:
 
     // JSON object or just "object"
     {
