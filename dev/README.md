@@ -67,12 +67,11 @@ For the purposes of this specification, we define the following terms:
 * property name - the name (or key) portion of the property.
 * property value - the value portion of the property.
 
-    // JSON object or just "object"
+    # JSON object or just "object"
     {
-        // The name/value pair together is a "property".
+        # The name/value pair together is a "property".
         "propertyName": "propertyValue"
     }
-
 
 # Description of webconf-spec specification
 
