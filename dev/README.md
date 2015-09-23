@@ -7,18 +7,20 @@ Table of Contents
     * [Versioning](#versioning)
   * [What is webconf-spec?](#what-is-webconf-spec)
   * [What is it useful for?](#what-is-it-useful-for)
-  * [Are there any implementation already?](#are-there-any-implementation-already)
+  * [Are there any implementations already?](#are-there-any-implementations-already)
   * [Format](#format)
+  * [Definitions](#definitions)
   * [Description of webconf-spec specification](#description-of-webconf-spec-specification)
-    * [General options](#general-options)
-    * [Redirects option](#redirects-option)
-    * [Proxy options](#proxy-options)
-    * [Match option](#match-option)
-    * [Locations option](#locations-option)
-    * [Error pages option](#error-pages-option)
-    * [Raw config option](#raw-config-option)
-    * [Load balancing options](#load-balancing-options)
+    * [General properties](#general-properties)
+    * [Redirects object](#redirects-object)
+    * [Proxy object](#proxy-object)
+    * [Match object](#match-object)
+    * [Locations object](#locations-object)
+    * [Error pages object](#error-pages-object)
+    * [Raw config object](#raw-config-object)
+    * [Balancers object](#balancers-object)
     * [Merging the webconf-spec formatted files](#merging-the-webconf-spec-formatted-files)
+  * [Examples of webconf-spec specification](#examples-of-webconf-spec-specification)
   * [Examples of webconf-spec specification](#examples-of-webconf-spec-specification)
     * [Serving the static directory on http://domain.tld/static](#serving-the-static-directory-on-httpdomaintldstatic)
     * [Serving the static directory with SSL support](#serving-the-static-directory-with-ssl-support)
@@ -38,7 +40,7 @@ The Webconf-spec specification is licensed under [GNU Free Documentation License
 Within this specification we follow [the semantic versioning pattern](http://semver.org/spec/v2.0.0.html).
 
 # What is webconf-spec?
-Webconfig-spec is specification of webserver configuration for web applications configuration. The goal of webconf-spec is to provide a way how to configure widely used webservers or proxies like Apache httpd, Nginx or HAProxy using the single configuration file.
+Webconf-spec is specification of webserver configuration for web applications configuration. The goal of webconf-spec is to provide a way how to configure widely used webservers or proxies like Apache httpd, Nginx or HAProxy using the single configuration file.
 
 # What is it useful for?
 
@@ -135,7 +137,7 @@ The properties which can be used in the `proxy` object are:
     
 | Key | Type | Meaning |
 |-----|------|---------|
-| url| String | URL on which the backend server listens to requests. The path part of the URL can contain special `$1` string. When used in the `match` object, the implementation MUST configure the webserver to replace `$1` with the name of file matching the `match` object. When the `match` object is used in the `locations` object, the file name used as replacement for `$1` MUST also include the path to the file starting at the location configured in this particular `locations` object. See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) for an example of this configuration. When the scheme used in the URL is `balancer://`, then the hostname defines the name of load balancer used for the load balancing. See the [Balancers object](#load-balancing-options) for more information. |
+| url| String | URL on which the backend server listens to requests. The path part of the URL can contain special `$1` string. When used in the `match` object, the implementation MUST configure the webserver to replace `$1` with the name of file matching the `match` object. When the `match` object is used in the `locations` object, the file name used as replacement for `$1` MUST also include the path to the file starting at the location configured in this particular `locations` object. See the [Proxying the PHP files in http://domain.tld/blog to php-fpm server](#proxying-the-php-files-in-httpdomaintldblog-to-php-fpm-server) for an example of this configuration. When the scheme used in the URL is `balancer://`, then the hostname defines the name of load balancer used for the load balancing. See the [Balancers object](#balancers-object) for more information. |
 | alias | String | The alias location of the web application on the frontend server. If the web application should be accessible on "http://domain.tld/blog", then the value of this property should be "/blog". If the `alias` property is set to an emptry string or is not defined, the webconf-spec implementation MUST use "/" string as default value. |
 | uds | String | The full path to UNIX Domain Socket which should be used to connect the backend. When both `url` and `uds` properties are specified, the `uds` MUST be used prioritely. |
 
