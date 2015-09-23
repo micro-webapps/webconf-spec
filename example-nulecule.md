@@ -20,7 +20,7 @@ The web applications configuration files are part of the Kubernetes service file
         "metadata": {
             "name": "webapp-owncloud",
             "annotations": {
-                "webconfig": "{\"version\":\"dev\", \"virtualhost\": \"$vhost\",\"proxy_protocol\": \"http://\",\"proxy_alias\": \"$alias\",\"proxy_backend_alias\": \"/owncloud\"}"
+                "webconfig": "{\"version\":\"dev\", \"virtualhost\": \"$vhost\",\"proxy\": { \"url\": \"http://webapp/owncloud\", \"alias\": \"$alias\"}}"
             }
         },
         "spec": {

@@ -8,7 +8,7 @@ This document describes the benefits of using webconf-spec in the Kubernetes/Ope
 
 The developer of the web application writting the Kubernetes/Openshift service can bundle the generic, server independent, configuration for the web application and he does not have to care what frontend webserver or reverse proxy is used in the cloud.
 
-The deployer of the web application does not have to waste time understanding the configuration of reverse proxy used in the cloud. He can just start the web application as shipped by the developer and change only the needed params like virtualhost, alias or certificates used by the web application. The reverse-proxy or webserver frontend in the cloud can then pick-up the configuration automatically.
+The deployer of the web application does not have to waste time understanding the configuration of reverse proxy used in the cloud. He can just start the web application as shipped by the developer and change only the needed parameters like virtualhost, URI or certificates used by the web application. The reverse-proxy or webserver frontend in the cloud can then pick-up the configuration automatically.
 
 When the deployer of the web application switches between Kubernetes or Openshift, he does not have to change the webserver related configuration.
 
@@ -22,7 +22,7 @@ The web applications configuration files are part of the Kubernetes service file
         "metadata": {
             "name": "webapp-owncloud",
             "annotations": {
-                "webconfig": "{\"version\":\"dev\", \"virtualhost\": \"domain.tld\",\"proxy_protocol\": \"http://\",\"proxy_alias\": \"/owncloud\",\"proxy_backend_alias\": \"/owncloud\"}"
+                "webconfig": "{\"version\":\"dev\", \"virtualhost\": \"domain.tld\",\"proxy\": { \"url\": \"http://webapp-address/owncloud",\"alias\": \"/owncloud\"}}"
             }
         },
         "spec": {
