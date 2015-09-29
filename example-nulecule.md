@@ -1,6 +1,6 @@
 # Configuring the web applications distributed as Nulecules (atomicapp)
 
-This document describes the benefits of using webconf-spec for the web applications distributed as Nulecules (atomicapp).
+This document describes the benefits of using webconf-spec for the web applications distributed as [Nulecules](https://github.com/projectatomic/nulecule/) ([atomicapp](https://github.com/projectatomic/atomicapp)).
 
 *This document is not final yet and can change without any notice. For now, it is mainly intended to be a working place where the ideas are put.*
 

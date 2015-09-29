@@ -42,6 +42,6 @@ The web applications configuration files are part of the Kubernetes service file
 
 The webserver or the reverse proxy used by the Kubernetes/Openshift can then use the Kubernetes/Openshift API-server to detect the service with `webconfig` field in `metadata` section and serve it automatically without any further configuration by the deployer.
 
-Note that using the Nulecule and Atomicapp, it is even possible to parametrize the webconf-spec, so the deployer does not have to touch the `webconfig` webconf-spec JSON, but can just set the virtualhost or alias using the atomicapp user interface.
+Note that using the [Nulecule](https://github.com/projectatomic/nulecule/) and [Atomic App](https://github.com/projectatomic/atomicapp), it is even possible to parametrize the webconf-spec, so the deployer does not have to touch the `webconfig` webconf-spec JSON, but can just set the virtualhost or alias using the atomicapp user interface.
 
-The way described here is already implemented as the micro-webapps project.
+The way described here is already implemented as the [micro-webapps](https://github.com/micro-webapps/micro-webapps) project.
