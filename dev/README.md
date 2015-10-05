@@ -87,8 +87,8 @@ This section describes the general webconf-spec properties. They are used only i
 
 | Key | Type | Meaning |
 |-----|------|---------|
-| certificate | String | The full path to file containing the certificate to be used for the virtualhost or server. When using this property, the SSL for this virtualhost or server MUST be enabled by the implementation. |
-| certificate_key | String | The full path to file containing the certificate key to be used for the virtualhost or server. When using this property, the SSL for this virtualhost or server MUST be enabled by the implementation. |
+| certificate | String | The full path to file in PEM format containing the certificate to be used for the virtualhost or server or the certificate data itself. When using raw certificate data, the new lines MUST be escaped to "\n" string. When using this property, the SSL for this virtualhost or server MUST be enabled by the implementation. |
+| certificate_key | String | The full path to file in PEM format containing the certificate key to be used for the virtualhost or server or the certificate key data itself. When using raw certificate key data, the new lines MUST be escaped to "\n" string. When using this property, the SSL for this virtualhost or server MUST be enabled by the implementation. |
 | document_root | String | The full path to directory acting as a root directory for the virtualhost or server. |
 | index | String | Name (or white-space seperated list of names) of the files which SHOULD be served by default when found in directory ("index.html" for example). It can be also set to value `disabled` to disable to the index file completely. The value of `autoindex` enables automatic generation of indexes similar to the Unix `ls` command or the Win32 `dir` shell command. |
 | version | String | The version of the webconf-spec used in this configuration file. For the development version of webconf-spec, the value of this property should be set to `dev`. This field MUST be always included. |
