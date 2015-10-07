@@ -7,11 +7,11 @@
     "properties": {
         "certificate": {
             "type": "string",
-            "description": "The full path to file containing the certificate to be used for the virtualhost or server or the certificate data itself. When using raw certificate data, the new lines MUST be escaped to "\n" string."
+            "description": "The full path to file containing the certificate to be used for the virtualhost or server or the certificate data itself. When using raw certificate data, the new lines MUST be escaped to \"\n\" string."
         },
         "certificate_key": {
             "type": "string",
-            "description": "The full path to file containing the certificate key to be used for the virtualhost or server or the certificate key data itself. When using raw certificate data, the new lines MUST be escaped to "\n" string."
+            "description": "The full path to file containing the certificate key to be used for the virtualhost or server or the certificate key data itself. When using raw certificate data, the new lines MUST be escaped to \"\n\" string."
         },
         "document_root": {
             "type": "string",

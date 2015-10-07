@@ -303,7 +303,7 @@ The format of the `balancers` object is following:
             }.
             "members": [
                 {
-                    "url": "http://member1:8080/
+                    "url": "http://member1:8080/",
                     "weight": 50,
                 }
             ]
